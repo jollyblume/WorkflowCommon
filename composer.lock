@@ -79,12 +79,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/jollyblume/ComposedCollections.git",
-                "reference": "ed0403b60c0511897d351184cd82336af566d96c"
+                "reference": "b10aafee2ce761ec7a9393039e35bd0b5a8ab8ea"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/jollyblume/ComposedCollections/zipball/ed0403b60c0511897d351184cd82336af566d96c",
-                "reference": "ed0403b60c0511897d351184cd82336af566d96c",
+                "url": "https://api.github.com/repos/jollyblume/ComposedCollections/zipball/b10aafee2ce761ec7a9393039e35bd0b5a8ab8ea",
+                "reference": "b10aafee2ce761ec7a9393039e35bd0b5a8ab8ea",
                 "shasum": ""
             },
             "require": {
@@ -101,7 +101,7 @@
             "type": "library",
             "autoload": {
                 "psr-4": {
-                    "JBJ\\ComposedCollections\\": ""
+                    "JBJ\\ComposedCollections\\": "lib"
                 }
             },
             "notification-url": "https://packagist.org/downloads/",
@@ -115,7 +115,7 @@
                 }
             ],
             "description": "Composed implementations of Doctrine's ArrayCollection",
-            "time": "2019-02-12T17:30:49+00:00"
+            "time": "2019-02-12T19:28:28+00:00"
         },
         {
             "name": "moontoast/math",
