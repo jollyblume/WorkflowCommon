@@ -38,6 +38,7 @@ class EventDispatcherTraitTest extends TestCase
         $trait = new class($name, $parent, $testValue) {
             use EventDispatcherTrait{
                 setDispatcher as public;
+                getDispatcher as protected;
             }
             use ElementParentTrait;
             private $name;

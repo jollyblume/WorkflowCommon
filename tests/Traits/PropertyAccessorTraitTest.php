@@ -40,6 +40,7 @@ class PropertyAccessorTraitTest extends TestCase
             use ElementParentTrait;
             use PropertyAccessorTrait{
                 setPropertyAccessor as public;
+                getPropertyAccessor as protected;
             }
             private $name;
             private $testValue;
