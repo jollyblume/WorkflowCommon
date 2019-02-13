@@ -10,15 +10,14 @@ use Doctrine\Common\Collections\ArrayCollection;
 use JBJ\Workflow\Collection\ClassnameMetadata;
 use JBJ\Workflow\Traits\ElementNameTrait;
 use JBJ\Workflow\Traits\ElementParentTrait;
-use Symfony\Component\PropertyAccess\PropertyAccess;
+use JBJ\Workflow\Traits\PropertyAccessorTrait;
 use Symfony\Component\PropertyAccess\PropertyAccessorInterface;
 
 trait GraphCollectionTrait
 {
-    use CollectionCommonTrait, ElementNameTrait, ElementParentTrait;
+    use CollectionCommonTrait, ElementNameTrait, ElementParentTrait, PropertyAccessorTrait;
 
     private $constraints;
-    private $propertyAccessor;
 
     private function assertInternalConfigurationIsSet()
     {
@@ -52,7 +51,7 @@ trait GraphCollectionTrait
             throw new \JBJ\Workflow\Exception\FixMeException(sprintf('Missing constraints "%s".', join(',', $ruleErrors)));
         }
         $this->constraints = $constraints;
-        $this->propertyAccessor = $propertyAccessor ?: PropertyAccess::createPropertyAccessor();
+        $this->setPropertyAccessor($propertyAccessor ?: $this->createPropertyAccessor());
         $this->setChildren($elements);
     }
 

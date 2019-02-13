@@ -16,11 +16,10 @@ class EventDispatcherTraitTest extends TestCase
         return $trait;
     }
 
-    /** @expectedException \JBJ\Workflow\Exception\FixMeException */
-    public function testEarlyGetThrowsException()
+    public function testEarlyGetReturnsNull()
     {
         $trait = $this->getTrait();
-        $trait->getDispatcher();
+        $this->assertNull($trait->getDispatcher());
     }
 
     public function testGetReturnsSetValue()

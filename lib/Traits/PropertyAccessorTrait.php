@@ -9,17 +9,8 @@ trait PropertyAccessorTrait
 {
     private $propertyAccessor;
 
-    protected function assertHasPropertyAccessor()
-    {
-        $propertyAccessor = $this->propertyAccessor;
-        if (null === $propertyAccessor) {
-            throw new \JBJ\Workflow\Exception\FixMeException('no property accessor');
-        }
-    }
-
     public function getPropertyAccessor()
     {
-        $this->assertHasPropertyAccessor();
         return $this->propertyAccessor;
     }
 
@@ -28,6 +19,7 @@ trait PropertyAccessorTrait
         $this->propertyAccessor = $propertyAccessor;
     }
 
+    /** @SuppressWarnings(PHPMD.StaticAccess) */
     protected function createPropertyAccessor()
     {
         return PropertyAccess::createPropertyAccessor();

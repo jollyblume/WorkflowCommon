@@ -19,11 +19,10 @@ class PropertyAccessorTraitTest extends TestCase
         return $trait;
     }
 
-    /** @expectedException \JBJ\Workflow\Exception\FixMeException */
-    public function testEarlyGetThrowsException()
+    public function testEarlyGetReturnsNull()
     {
         $trait = $this->getTrait();
-        $trait->getPropertyAccessor();
+        $this->assertNull($trait->getPropertyAccessor());
     }
 
     public function testGetReturnsSetValue()
