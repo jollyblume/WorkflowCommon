@@ -1,16 +1,13 @@
 Common Components
 =================
 
-## General library status
+## General status
 The code base is stable and it's interfaces are not going to be changing. Unit tests are complete for most feature, but many tests remain to be written. Existing test provide a credible level of code quality for development use. I don't expect any bugs
 in the current code base. Of course, everyone knows how foolish that notion is until test units are complete...
 
 This README needs to be completed, as do code docblocks.
 
 I do not intend to release a 1.0 version until these todo's are complete.
-
-## Install via composer
-   composer.phar require jollyblume/common:@dev
 
 ## Library overview
 This component includes three sections:
