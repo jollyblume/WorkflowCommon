@@ -19,6 +19,15 @@ trait PropertyAccessorTrait
         $this->propertyAccessor = $propertyAccessor;
     }
 
+    public function findPropertyAccessor()
+    {
+        $propertyAccessor = $this->propertyAccessor;
+        if (null === $propertyAccessor && method_exists($this, 'getValueForMethod')) {
+            $propertyAccessor = $this->getValueForMethod('getPropertyAccessor');
+        }
+        return $propertyAccessor;
+    }
+
     /** @SuppressWarnings(PHPMD.StaticAccess) */
     protected function createPropertyAccessor()
     {
