@@ -103,15 +103,21 @@ class ElementParentTraitTest extends TestCase
         $traitNames = $this->getRecursiveTraitNames();
         $traitMap = array_combine($traitNames, $traits);
         foreach ($traitNames as $traitName) {
-            $getterLogic = function ($object, $method) use ($traitName) {
-                if (!method_exists($object, $method)) {
-                    return null;
-                }
-                $value = $object->$method();
-                return $traitName === $value ? $object : null;
-            };
-            $parent = $finalTrait->getValueForMethod('getName', $getterLogic);
+            $parent = $finalTrait->getParentForValue('getName', $traitName);
             $this->assertEquals($traitMap[$traitName], $parent);
+        }
+    }
+
+    public function testRecursiveGetRootParent()
+    {
+        $traits = $this->getRecursiveGraph();
+        $rootTrait = $traits[0];
+        $traitNames = $this->getRecursiveTraitNames();
+        $traitMap = array_combine($traitNames, $traits);
+        foreach ($traitNames as $traitName) {
+            $trait = $traitMap[$traitName];
+            $parent = $trait->getRootParent();
+            $this->assertEquals($rootTrait, $parent);
         }
     }
 }

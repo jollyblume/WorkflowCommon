@@ -18,21 +18,58 @@ trait ElementParentTrait
         $this->parent = $parent;
     }
 
-    public function getValueForMethod(string $method, Closure $getterLogic = null)
+    public function recurseParents(string $method, Closure $getterLogic)
     {
-        if (null === $getterLogic) {
-            $getterLogic = function ($object, $method) {
-                if (!method_exists($object, $method)) {
-                    return null;
-                }
-                return $object->$method();
-            };
-        }
         $value = $getterLogic($this, $method);
         $parent = $this->getParent();
-        if (null !== $value || null === $parent || !method_exists($parent, 'getValueForMethod')) {
+        if (null !== $value || null === $parent || !method_exists($parent, 'recurseParents')) {
             return $value;
         }
-        return $parent->getValueForMethod($method, $getterLogic);
+        return $parent->recurseParents($method, $getterLogic);
+    }
+
+    public function getValueForMethod(string $method)
+    {
+        $getterLogic = function ($object, $method) {
+            if (!method_exists($object, $method)) {
+                return null;
+            }
+            return $object->$method();
+        };
+        return $this->recurseParents($method, $getterLogic);
+    }
+
+    public function hasValueForMethod(string $method)
+    {
+        $value = $this->getValueForMethod($method);
+        return null !== $value;
+    }
+
+    public function getParentForValue(string $method, $expectedValue)
+    {
+        $getterLogic = function ($object, $method) use ($expectedValue) {
+            if (!method_exists($object, $method)) {
+                return null;
+            }
+            $value = $object->$method();
+            return $expectedValue === $value ? $object : null;
+        };
+        return $this->recurseParents($method, $getterLogic);
+    }
+
+    public function getRootParent()
+    {
+        $getterLogic = function ($object, $method) {
+            // $method should be 'getParent'
+            if (!method_exists($object, $method)) {
+                return $object;
+            }
+            $value = $object->$method();
+            if (null === $value) {
+                return $object;
+            }
+            return null;
+        };
+        return $this->recurseParents('getParent', $getterLogic);
     }
 }
