@@ -19,11 +19,17 @@ trait CollectionCommonTrait
      */
     private $children;
 
+    protected function saveChildren(array $children)
+    {
+        $this->children = $children;
+    }
+
     protected function getChildren()
     {
         $children = $this->children;
         if (!$children instanceof ArrayCollection) {
-            $this->setChildren([]);
+            $children = is_array($children) ? $children : [];
+            $this->setChildren($children);
             $children = $this->children;
         }
         return $children;

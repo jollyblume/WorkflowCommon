@@ -8,8 +8,6 @@ class ComposedCollection implements ArrayCollectionInterface
 
     public function __construct(array $elements = [])
     {
-        if (!empty($elements)) {
-            $this->setChildren($elements);
-        }
+        $this->saveChildren($elements);
     }
 }

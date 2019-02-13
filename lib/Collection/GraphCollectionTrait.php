@@ -19,15 +19,6 @@ trait GraphCollectionTrait
 
     private $constraints;
 
-    private function assertInternalConfigurationIsSet()
-    {
-        foreach (['name', 'constraints', 'propertyAccessor'] as $property) {
-            if (null === $this->$property) {
-                throw new \JBJ\Workflow\Exception\FixMeException('Internal configuration not set');
-            }
-        }
-    }
-
     protected function initializeTrait(string $name, array $elements = [], array $rules = [], PropertyAccessorInterface $propertyAccessor = null)
     {
         $this->setName($name);
@@ -51,8 +42,17 @@ trait GraphCollectionTrait
             throw new \JBJ\Workflow\Exception\FixMeException(sprintf('Missing constraints "%s".', join(',', $ruleErrors)));
         }
         $this->constraints = $constraints;
-        $this->setPropertyAccessor($propertyAccessor ?: $this->createPropertyAccessor());
-        $this->setChildren($elements);
+        $this->setPropertyAccessor($propertyAccessor);
+        $this->saveChildren($elements);
+    }
+
+    private function assertInternalConfigurationIsSet()
+    {
+        foreach (['name', 'constraints'] as $property) {
+            if (null === $this->$property) {
+                throw new \JBJ\Workflow\Exception\FixMeException('Internal configuration not set');
+            }
+        }
     }
 
     private function setChildren(array $elements)
@@ -71,7 +71,11 @@ trait GraphCollectionTrait
         if (null === $property) {
             throw new \JBJ\Workflow\Exception\FixMeException(sprintf('Invalid element "%s", no name property defined.', get_class($element)));
         }
-        $propertyAccessor = $this->propertyAccessor;
+        $propertyAccessor = $this->findPropertyAccessor();
+        if (null === $propertyAccessor) {
+            $propertyAccessor = $this->createPropertyAccessor();
+            $this->setPropertyAccessor($propertyAccessor);
+        }
         if (!$propertyAccessor->isReadable($element, $property)) {
             throw new \JBJ\Workflow\Exception\FixMeException(sprintf('Invalid element "%s", property "%s" not readable.', get_class($element), $property));
         }
@@ -86,7 +90,11 @@ trait GraphCollectionTrait
         if (null === $property) {
             throw new \JBJ\Workflow\Exception\FixMeException(sprintf('Invalid element "%s", no parent property defined.', get_class($element)));
         }
-        $propertyAccessor = $this->propertyAccessor;
+        $propertyAccessor = $this->findPropertyAccessor();
+        if (null === $propertyAccessor) {
+            $propertyAccessor = $this->createPropertyAccessor();
+            $this->setPropertyAccessor($propertyAccessor);
+        }
         if (!$propertyAccessor->isReadable($element, $property)) {
             throw new \JBJ\Workflow\Exception\FixMeException(sprintf('Invalid element "%s", property "%s" not readable.', get_class($element), $property));
         }
