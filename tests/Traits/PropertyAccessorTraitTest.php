@@ -11,7 +11,10 @@ class PropertyAccessorTraitTest extends TestCase
     protected function getTrait()
     {
         $trait = new class() {
-            use PropertyAccessorTrait;
+            use PropertyAccessorTrait {
+                setPropertyAccessor as public;
+                createPropertyAccessor as public;
+            }
         };
         return $trait;
     }
@@ -26,7 +29,7 @@ class PropertyAccessorTraitTest extends TestCase
     public function testGetReturnsSetValue()
     {
         $trait = $this->getTrait();
-        $propertyAccessor = PropertyAccess::createPropertyAccessor();
+        $propertyAccessor = $trait->createPropertyAccessor();
         $trait->setPropertyAccessor($propertyAccessor);
         $this->assertEquals($propertyAccessor, $trait->getPropertyAccessor());
     }

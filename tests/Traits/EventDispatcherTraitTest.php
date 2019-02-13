@@ -11,7 +11,7 @@ class EventDispatcherTraitTest extends TestCase
     protected function getTrait()
     {
         $trait = new class() {
-            use EventDispatcherTrait;
+            use EventDispatcherTrait {setDispatcher as public;}
         };
         return $trait;
     }

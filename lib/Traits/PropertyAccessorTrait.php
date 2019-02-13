@@ -23,8 +23,13 @@ trait PropertyAccessorTrait
         return $this->propertyAccessor;
     }
 
-    public function setPropertyAccessor(PropertyAccessorInterface $propertyAccessor)
+    protected function setPropertyAccessor(PropertyAccessorInterface $propertyAccessor)
     {
         $this->propertyAccessor = $propertyAccessor;
+    }
+
+    protected function createPropertyAccessor()
+    {
+        return PropertyAccess::createPropertyAccessor();
     }
 }

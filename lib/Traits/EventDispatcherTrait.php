@@ -22,7 +22,7 @@ trait EventDispatcherTrait
         return $this->dispatcher;
     }
 
-    public function setDispatcher(EventDispatcherInterface $dispatcher)
+    protected function setDispatcher(EventDispatcherInterface $dispatcher)
     {
         $this->dispatcher = $dispatcher;
     }
