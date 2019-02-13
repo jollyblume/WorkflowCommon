@@ -8,8 +8,17 @@ trait EventDispatcherTrait
 {
     private $dispatcher;
 
+    protected function assertHasDispatcher()
+    {
+        $dispatcher = $this->dispatcher;
+        if (null === $dispatcher) {
+            throw new \JBJ\Workflow\Exception\FixMeException('no dispatcher');
+        }
+    }
+
     public function getDispatcher()
     {
+        $this->assertHasDispatcher();
         return $this->dispatcher;
     }
 
