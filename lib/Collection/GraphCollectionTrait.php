@@ -13,6 +13,43 @@ use JBJ\Workflow\Traits\ElementParentTrait;
 use JBJ\Workflow\Traits\PropertyAccessorTrait;
 use Symfony\Component\PropertyAccess\PropertyAccessorInterface;
 
+/**
+ * GraphCollectionTrait
+ *
+ * Implements Add, Set, Get, and Remove from ArrayCollection. Other methods are
+ * implemented in CollectionCommonTrait.
+ *
+ * Classes using this trait have all of the Doctrine ArrayCollection inhterfaces
+ * implemented.
+ *  - Countable
+ *  - IteratorAggregate
+ *  - ArrayAccess
+ *  - Selectable
+
+ * Internally, the methods in this trait compose a children collection, which is
+ * an ArrayCollection and proxy all calls to it.
+ *
+ * This trait alters collection behavior in important ways, in order to facilitate
+ * graph semantics.
+ *
+ * Elements must be objects that include both Name and Parent accessors. There is
+ * no official interface to implement. The accessors can have any name. They are
+ * accessed via symfony/property-access.
+ *
+ * When a child is added, it's name will be used as the child's index in the
+ * composed children array. After it is added, the child's parent will be property
+ * set.
+ *
+ * Note:
+ *  A child added will not be automatically removed from it's previous parent.
+ *
+ * When a child is removed, it's parent will be set to null.
+ *
+ * Get returns null if a key does not exist (similar to ArrayCollection).
+ *
+ * Parent accessors have no special logic. They are set when added to the parent
+ * graph node.
+ */
 trait GraphCollectionTrait
 {
     use CollectionCommonTrait, ElementNameTrait, ElementParentTrait, PropertyAccessorTrait;

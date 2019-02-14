@@ -12,11 +12,11 @@ use JBJ\Workflow\Traits\ElementNameTrait;
  * ClassnameMetadata maps classnames to a property name defined in the class
  * which will be referenced in code as ClassnameMetadata::propertyName.
  *
- * It is used by GraphCollection to allow 'name' and 'parent' properties to
+ * It is used by GraphCollection to proxy 'name' and 'parent' properties to
  * semantic properties defined by a class.
  *
  * A default property name can be defined, which is used when rules for a
- * classname are not defined.
+ * specific classname are not defined.
  *
  * ClassnameMetadata defines two flags to control delivered mappings:
  *  - ClassnameMetadata::isDisabled
@@ -97,7 +97,7 @@ class ClassnameMetadata implements ArrayCollectionInterface
     }
 
     /**
-     * Get the property name this rule set describes.
+     * Get the proxy property name this rule set describes.
      *
      * @return string
      */
@@ -145,7 +145,6 @@ class ClassnameMetadata implements ArrayCollectionInterface
     * @param bool $disabled
     * @return self
      */
-
     public function setIsDisabled(bool $disabled)
     {
         $this->isDisabled = $disabled;
@@ -175,17 +174,22 @@ class ClassnameMetadata implements ArrayCollectionInterface
     }
 
     /**
-     * {@inheritdoc}
+     * Get a mapped property name
+     *
+     * Returns the default mapped property name if $classname not in ruleset.
+     *
+     * @param string $classname
+     * @return string Mapped property name for $classname (or default)
      */
-    public function get($key)
+    public function get($classname)
     {
         if ($this->isDisabled() || !$this->isValid()) {
             return null;
         }
-        if (is_object($key)) {
-            $key = get_class($key);
+        if (is_object($classname)) {
+            $classname = get_class($classname);
         }
-        $value = $this->getChildren()[$key] ?: $this->getDefaultValue();
+        $value = $this->getChildren()[$classname] ?: $this->getDefaultValue();
         return $value;
     }
 }

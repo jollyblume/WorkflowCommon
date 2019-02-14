@@ -1,29 +1,49 @@
 <?php
 
+namespace JBJ\Workflow\Collection;
+
 /**
  * forked from doctrine/collections
  */
-
-namespace JBJ\Workflow\Collection;
 
 use Closure;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Criteria;
 
+/**
+ * CollectionCommonTrait
+ *
+ * Implements common methods from Doctrine's ArrayCollection class, used by
+ * CollectionTrait and GraphCollectionTrait.
+ */
 trait CollectionCommonTrait
 {
     /**
-     * composedCollection
+     * Composed collection
      *
      * @var ArrayCollection $children
      */
     private $children;
 
+    /**
+     * Save the children :)
+     *
+     * Save the $elements array until the final ArrayCollection is created.
+     *
+     * @param array $children
+     */
     protected function saveChildren(array $children)
     {
         $this->children = $children;
     }
 
+    /**
+     * Get the children
+     *
+     * The ArrayCollection is created if needed.
+     *
+     * @return ArrayCollection
+     */
     protected function getChildren()
     {
         $children = $this->children;
