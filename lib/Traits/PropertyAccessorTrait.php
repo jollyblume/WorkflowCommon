@@ -25,7 +25,7 @@ trait PropertyAccessorTrait
         if (null === $propertyAccessor && method_exists($this, 'getValueForMethod')) {
             $propertyAccessor = $this->getValueForMethod('getPropertyAccessor');
         }
-        return $propertyAccessor;
+        return $propertyAccessor ?: $this->createPropertyAccessor();
     }
 
     /** @SuppressWarnings(PHPMD.StaticAccess) */

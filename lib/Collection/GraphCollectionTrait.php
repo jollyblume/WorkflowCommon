@@ -72,10 +72,6 @@ trait GraphCollectionTrait
             throw new \JBJ\Workflow\Exception\FixMeException(sprintf('Invalid element "%s", no name property defined.', get_class($element)));
         }
         $propertyAccessor = $this->findPropertyAccessor();
-        if (null === $propertyAccessor) {
-            $propertyAccessor = $this->createPropertyAccessor();
-            $this->setPropertyAccessor($propertyAccessor);
-        }
         if (!$propertyAccessor->isReadable($element, $property)) {
             throw new \JBJ\Workflow\Exception\FixMeException(sprintf('Invalid element "%s", property "%s" not readable.', get_class($element), $property));
         }
@@ -91,10 +87,6 @@ trait GraphCollectionTrait
             throw new \JBJ\Workflow\Exception\FixMeException(sprintf('Invalid element "%s", no parent property defined.', get_class($element)));
         }
         $propertyAccessor = $this->findPropertyAccessor();
-        if (null === $propertyAccessor) {
-            $propertyAccessor = $this->createPropertyAccessor();
-            $this->setPropertyAccessor($propertyAccessor);
-        }
         if (!$propertyAccessor->isReadable($element, $property)) {
             throw new \JBJ\Workflow\Exception\FixMeException(sprintf('Invalid element "%s", property "%s" not readable.', get_class($element), $property));
         }
