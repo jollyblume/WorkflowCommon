@@ -7,6 +7,7 @@ use JBJ\Workflow\Validator\UuidValidator;
 
 trait CreateIdTrait
 {
+    /** @SuppressWarnings(PHPMD.StaticAccess) */
     protected function createId(string $name = '')
     {
         if (empty($name)) {

@@ -17,6 +17,7 @@ class ArrayCollectionCompatibilityTest extends BaseCollectionTraitTest
         return [];
     }
 
+    /** @SuppressWarnings(PHPMD.UnusedFormalParameter) */
     protected function createCollection(string $name, array $elements = []) : ArrayCollectionInterface
     {
         $testClass = $this->getTestClass();

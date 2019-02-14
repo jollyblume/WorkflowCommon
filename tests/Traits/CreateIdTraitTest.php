@@ -10,28 +10,27 @@ class CreateIdTraitTest extends TestCase
 {
     public function testCreateId()
     {
-        $trait = new class()
-        {
+        $trait = new class() {
             use CreateIdTrait {
                 CreateId as public;
             }
 
-            public function validate($id)
+            public function validate($uuid)
             {
                 $validator = new UuidValidator();
-                return $validator->validate($id);
+                return $validator->validate($uuid);
             }
         };
 
         $this->assertFalse($trait->validate('a.name'));
         $uuid = 'cd6ccde3-d11d-432b-8ffa-3596f214f7b1';
         $this->assertTrue($trait->validate($uuid));
-        $id = $trait->CreateId();
-        $this->assertTrue($trait->validate($id));
-        $id = $trait->CreateId('a.name');
-        $this->assertTrue($trait->validate($id));
-        $this->assertEquals($id, $trait->CreateId('a.name'));
-        $id = $trait->CreateId($uuid);
-        $this->assertEquals($uuid, $id);
+        $newId = $trait->CreateId();
+        $this->assertTrue($trait->validate($newId));
+        $newId = $trait->CreateId('a.name');
+        $this->assertTrue($trait->validate($newId));
+        $this->assertEquals($newId, $trait->CreateId('a.name'));
+        $newId = $trait->CreateId($uuid);
+        $this->assertEquals($uuid, $newId);
     }
 }

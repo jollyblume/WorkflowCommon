@@ -90,6 +90,7 @@ class PropertyAccessorTraitTest extends TestCase
         return $traits;
     }
 
+    /** @SuppressWarnings(PHPMD.StaticAccess) */
     public function testFindPropertyAccessor()
     {
         $traits = $this->getRecursiveGraph();

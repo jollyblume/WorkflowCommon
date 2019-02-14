@@ -11,6 +11,7 @@ use PHPUnit\Framework\TestCase;
 
 /**
  * @coversDefaultClass JBJ\Workflow\Validator\UuidValidator
+ * @SuppressWarnings(PHPMD.TooManyPublicMethods)
  */
 class ValidatorTest extends TestCase
 {

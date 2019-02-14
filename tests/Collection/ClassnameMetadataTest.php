@@ -5,6 +5,9 @@ namespace JBJ\Workflow\Tests\Collection;
 use PHPUnit\Framework\TestCase;
 use JBJ\Workflow\Collection\ClassnameMetadata;
 
+/**
+ * @SuppressWarnings(PHPMD.TooManyPublicMethods)
+ */
 class ClassnameMetadataTest extends TestCase
 {
     public function testGetPropertyName()

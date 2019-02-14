@@ -11,6 +11,11 @@ use JBJ\Workflow\Collection\ClassnameMetadata;
 use Ramsey\Uuid\Uuid;
 use PHPUnit\Framework\TestCase;
 
+/**
+ * @SuppressWarnings(PHPMD.TooManyMethods)
+ * @SuppressWarnings(PHPMD.TooManyPublicMethods)
+ * @SuppressWarnings(PHPMD.ExcessiveClassComplexity)
+ */
 abstract class BaseCollectionTraitTest extends TestCase
 {
     abstract protected function getTestClass() : string;
@@ -18,6 +23,8 @@ abstract class BaseCollectionTraitTest extends TestCase
     abstract protected function createCollection(string $name, array $elements = []) : ArrayCollectionInterface;
 
     private $propertyAccessor;
+    
+    /** @SuppressWarnings(PHPMD.StaticAccess) */
     protected function getPropertyAccessor()
     {
         $propertyAccessor = $this->propertyAccessor;
@@ -33,15 +40,15 @@ abstract class BaseCollectionTraitTest extends TestCase
     {
         $isGraph = $this->isGraph;
         if (null === $isGraph) {
-            $rc = new \ReflectionClass($this->getTestClass());
-            $parents = [$rc];
-            while ($parent = $rc->getParentClass()) {
+            $rClass = new \ReflectionClass($this->getTestClass());
+            $parents = [$rClass];
+            while ($parent = $rClass->getParentClass()) {
                 $parents[] = $parent;
-                $rc = $parent;
+                $rClass = $parent;
             }
             $traitNames = [];
-            foreach ($parents as $rc) {
-                $traitNames = array_merge($traitNames, $rc->getTraitNames());
+            foreach ($parents as $rClass) {
+                $traitNames = array_merge($traitNames, $rClass->getTraitNames());
             }
             $collectionTraits = [];
             foreach (['JBJ\Workflow\Collection\CollectionTrait', 'JBJ\Workflow\Collection\GraphCollectionTrait'] as $collectionTrait) {
@@ -196,6 +203,7 @@ abstract class BaseCollectionTraitTest extends TestCase
 
     /**
      * @group init
+     * @group failing
      */
     public function testRighteousEnv()
     {
@@ -227,10 +235,10 @@ abstract class BaseCollectionTraitTest extends TestCase
     }
 
     /**
-     * @depends testRighteousEnv
      * @group init
+     * @group failing
      */
-    public function testCreateAcceptableElement($rules)
+    public function testCreateAcceptableElement()
     {
         $element = $this->createAcceptableElement('test.key');
         $constraints = $this->buildConstraints();
@@ -243,7 +251,7 @@ abstract class BaseCollectionTraitTest extends TestCase
             $parentWritable = $propertyAccessor->isWritable($element, $constraints['parent'][$element]);
             $this->assertTrue($parentWritable);
         }
-        // used by selectable tests
+        $this->assertTrue(method_exists($element, '__toString'));
         $otherReadable = $propertyAccessor->isReadable($element, 'otherValue');
         $this->assertTrue($otherReadable);
         $otherWritable = $propertyAccessor->isWritable($element, 'otherValue');
@@ -253,6 +261,7 @@ abstract class BaseCollectionTraitTest extends TestCase
     /**
      * @depends testRighteousEnv
      * @group init
+     * @group failing
      */
     public function testCreateCollection($rules)
     {
@@ -286,7 +295,7 @@ abstract class BaseCollectionTraitTest extends TestCase
         $constraints = $this->buildConstraints();
         $constraint = $constraints['name'];
         $hydrated = [];
-        foreach ($elements as $key => $element) {
+        foreach ($elements as $element) {
             $property = $constraint[$element];
             $newKey = $propertyAccessor->getValue($element, $property);
             $hydrated[$newKey] = $element;
@@ -297,6 +306,7 @@ abstract class BaseCollectionTraitTest extends TestCase
     /**
      * @depends testDataProvider
      * @group init
+     * @group failing
      */
     public function testHydrateElementKeysUsingSet($providerData)
     {
@@ -318,6 +328,7 @@ abstract class BaseCollectionTraitTest extends TestCase
     /**
      * @depends testDataProvider
      * @group init
+     * @group failing
      */
     public function testHydrateElementKeysUsingAdd($providerData)
     {
@@ -345,6 +356,7 @@ abstract class BaseCollectionTraitTest extends TestCase
     /**
      * @depends testDataProvider
      * @group init
+     * @group failing
      */
     public function testElementParents($providerData)
     {
@@ -379,7 +391,6 @@ abstract class BaseCollectionTraitTest extends TestCase
 
     /**
      * @depends testDataProvider
-     * @group failing
      */
     public function testFirst($providerData)
     {
@@ -641,7 +652,7 @@ abstract class BaseCollectionTraitTest extends TestCase
         $collection = $this->createCollection($datasetIndex, $elements);
         $elements = $this->hydrateElementKeys($elements);
         $this->assertFalse($collection->removeElement($missingElement));
-        foreach ($elements as $key => $value) {
+        foreach ($elements as $value) {
             $this->assertTrue($collection->removeElement($value));
         }
         $this->assertTrue($collection->isEmpty(), 'Empty collection for "' . $datasetIndex . '"."');
@@ -664,8 +675,8 @@ abstract class BaseCollectionTraitTest extends TestCase
         $collection = $this->createCollection($datasetIndex, $elements);
         $elements = $this->hydrateElementKeys($elements);
         $this->assertFalse($collection->containsKey($missingElement->getName(), 'Missing key found for "' . $datasetIndex . '"."'));
-        foreach ($elements as $key => $value) {
-            $this->assertTrue($collection->containsKey($key), 'Expected key not found for "' . $datasetIndex . '"."');
+        foreach (array_keys($elements) as $value) {
+            $this->assertTrue($collection->containsKey($value), 'Expected key not found for "' . $datasetIndex . '"."');
         }
     }
 
@@ -686,7 +697,7 @@ abstract class BaseCollectionTraitTest extends TestCase
         $collection = $this->createCollection($datasetIndex, $elements);
         // $elements = $this->hydrateElementKeys($elements);
         $this->assertFalse($collection->contains($missingElement), 'Missing element found for "' . $datasetIndex . '"."');
-        foreach ($elements as $key => $value) {
+        foreach ($elements as $value) {
             $this->assertTrue($collection->contains($value), 'Expected element not found for "' . $datasetIndex . '"."');
         }
     }
@@ -708,8 +719,8 @@ abstract class BaseCollectionTraitTest extends TestCase
         $collection = $this->createCollection($datasetIndex, $elements);
         $elements = $this->hydrateElementKeys($elements);
         $this->assertFalse(isset($collection[$missingElement->getName()]), 'Missing key set for "' . $datasetIndex . '"."');
-        foreach ($elements as $key => $value) {
-            $this->assertTrue(isset($collection[$key]), 'Expected key not set for "' . $datasetIndex . '".');
+        foreach (array_keys($elements) as$value) {
+            $this->assertTrue(isset($collection[$value]), 'Expected key not set for "' . $datasetIndex . '".');
         }
     }
 
@@ -789,14 +800,17 @@ abstract class BaseCollectionTraitTest extends TestCase
         // actual test follows:
         $collection = $this->createCollection($datasetIndex, $elements);
         $elements = $this->hydrateElementKeys($elements);
-        foreach ($elements as $key => $value) {
-            $this->assertTrue(isset($collection[$key]));
-            unset($collection[$key]);
-            $this->assertFalse(isset($collection[$key]));
+        foreach (array_keys($elements) as $value) {
+            $this->assertTrue(isset($collection[$value]));
+            unset($collection[$value]);
+            $this->assertFalse(isset($collection[$value]));
         }
     }
 
-    /** @depends testDataProvider */
+    /**
+     * @depends testDataProvider
+     * @SuppressWarnings(PHPMD.StaticAccess)
+    */
     public function testMatchingWithSortingPreservesKeys($providerData)
     {
         $elements = $this->getNextDataset(__FUNCTION__, $providerData);
@@ -812,7 +826,6 @@ abstract class BaseCollectionTraitTest extends TestCase
         }
 
         // actual test follows:
-        $missingElement = $this->createAcceptableElement('test.id.zZ');
         $collection = $this->createCollection($datasetIndex, $elements);
         $elements = $this->hydrateElementKeys($elements);
 
