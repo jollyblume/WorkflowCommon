@@ -25,6 +25,7 @@ class GraphCollectionCompatibilityTest extends BaseCollectionTraitTest
                 'isDisabled' => false,
                 'isValid' => true,
             ],
+            'unused-rule' => [],
         ];
         return $rules;
     }
@@ -36,5 +37,42 @@ class GraphCollectionCompatibilityTest extends BaseCollectionTraitTest
         $testClass = $this->getTestClass();
         $collection = new $testClass($name, $elements, $rules, $propertyAccessor);
         return $collection;
+    }
+
+    public function testGetUnusedRules()
+    {
+        $collection = $this->createCollection('test');
+        $expectedUnusedRules = [
+            'unused-rule' => [],
+        ];
+        $this->assertEquals($expectedUnusedRules, $collection->getUnusedRules()->toArray());
+    }
+
+    public function testGetUnusedRulesWhenNull()
+    {
+        $rules = [
+            'name' => [
+                'name',
+                'isDisabled' => false,
+                'isValid' => true,
+            ],
+            'parent' => [
+                'parent',
+                'isDisabled' => false,
+                'isValid' => true,
+            ],
+        ];
+        $propertyAccessor = $this->getPropertyAccessor();
+        $testClass = $this->getTestClass();
+        $collection = new $testClass('test', [], $rules, $propertyAccessor);
+        $this->assertEquals([], $collection->getUnusedRules()->toArray());
+    }
+
+    /** @expectedException \JBJ\Workflow\Exception\FixMeException */
+    public function testAssertRequiredRules()
+    {
+        $testClass = $this->getTestClass();
+        $collection = new $testClass('test');
+        $this->assertEquals([], $collection->getUnusedRules()->toArray());
     }
 }

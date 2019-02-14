@@ -271,6 +271,9 @@ abstract class BaseCollectionTraitTest extends TestCase
             $this->createAcceptableElement('test.element.3'),
         ];
         $collection = $this->createCollection('test.collection', $elements);
+        if ($this->isGraph()) {
+            $this->assertInstanceOf(ArrayCollection::class, $collection->getUnusedRules());
+        }
         $testClass = $this->getTestClass();
         $this->assertInstanceOf($testClass, $collection);
         if (empty($rules)) {

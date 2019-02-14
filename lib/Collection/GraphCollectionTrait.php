@@ -30,7 +30,7 @@ trait GraphCollectionTrait
         return $constraints;
     }
 
-    protected function getUnusedRules()
+    public function getUnusedRules()
     {
         $unusedRules = $this->unusedRules;
         if (null === $unusedRules) {
@@ -69,9 +69,9 @@ trait GraphCollectionTrait
             if (!isset($constraints[$key])) {
                 $ruleErrors[] = $key;
             }
-            if (!empty($ruleErrors)) {
-                throw new \JBJ\Workflow\Exception\FixMeException(sprintf('Missing constraints "%s".', join(',', $ruleErrors)));
-            }
+        }
+        if (!empty($ruleErrors)) {
+            throw new \JBJ\Workflow\Exception\FixMeException(sprintf('Missing constraints "%s".', join(',', $ruleErrors)));
         }
     }
 
@@ -80,7 +80,9 @@ trait GraphCollectionTrait
         $this->setName($name);
         $this->partitionRules($rules, $this->getRequiredRules());
         $this->assertRequiredRules();
-        $this->unusedRules = new ArrayCollection($rules);
+        if (!empty($rules)) {
+            $this->unusedRules = new ArrayCollection($rules);
+        }
         $this->setPropertyAccessor($propertyAccessor);
         $this->saveChildren($elements);
     }
