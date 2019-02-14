@@ -61,11 +61,8 @@ trait ElementParentTrait
     {
         $getterLogic = function ($object, $method) {
             // $method should be 'getParent'
-            if (!method_exists($object, $method)) {
-                return $object;
-            }
-            $value = $object->$method();
-            if (null === $value) {
+            $parent = $object->$method();
+            if (null === $parent || !method_exists($parent, 'recurseParents')) {
                 return $object;
             }
             return null;

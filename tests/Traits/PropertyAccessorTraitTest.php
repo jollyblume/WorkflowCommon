@@ -2,6 +2,8 @@
 
 namespace JBJ\Workflow\Tests\Traits;
 
+use Doctrine\Common\Collections\ArrayCollection;
+use Symfony\Component\PropertyAccess\PropertyAccessorInterface;
 use Symfony\Component\PropertyAccess\PropertyAccess;
 use JBJ\Workflow\Traits\PropertyAccessorTrait;
 use JBJ\Workflow\Traits\ElementParentTrait;
@@ -96,6 +98,15 @@ class PropertyAccessorTraitTest extends TestCase
         foreach ($traits as $trait) {
             $value = $trait->findPropertyAccessor();
             $this->assertEquals($propertyAccessor, $value);
+        }
+    }
+
+    public function testFindPropertyAccessorDefault()
+    {
+        $traits = $this->getRecursiveGraph();
+        foreach ($traits as $trait) {
+            $value = $trait->findPropertyAccessor();
+            $this->assertInstanceOf(PropertyAccessorInterface::class, $value);
         }
     }
 }

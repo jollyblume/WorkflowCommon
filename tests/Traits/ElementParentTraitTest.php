@@ -3,6 +3,7 @@
 namespace JBJ\Workflow\Tests\Traits;
 
 use Closure;
+use Doctrine\Common\Collections\ArrayCollection;
 use JBJ\Workflow\Traits\ElementParentTrait;
 use PHPUnit\Framework\TestCase;
 
@@ -111,6 +112,64 @@ class ElementParentTraitTest extends TestCase
     public function testRecursiveGetRootParent()
     {
         $traits = $this->getRecursiveGraph();
+        $rootTrait = $traits[0];
+        $traitNames = $this->getRecursiveTraitNames();
+        $traitMap = array_combine($traitNames, $traits);
+        foreach ($traitNames as $traitName) {
+            $trait = $traitMap[$traitName];
+            $parent = $trait->getRootParent();
+            $this->assertEquals($rootTrait, $parent);
+        }
+    }
+
+    protected function getAnchoredRecursiveGraph()
+    {
+        $traits = $this->getRecursiveGraph();
+        $traits[0]->setParent(new ArrayCollection());
+        return $traits;
+    }
+
+    public function testAnchoredRecursiveGetValueNullIfValueNotSet()
+    {
+        $traits = $this->getAnchoredRecursiveGraph();
+        $finalTrait = end($traits);
+        $value = $finalTrait->getValueForMethod('getTestValue');
+        $this->assertNull($value);
+    }
+
+    public function testAnchoredRecursiveGetIfValueSetInCurrentTrait()
+    {
+        $traits = $this->getAnchoredRecursiveGraph();
+        foreach ($traits  as $trait) {
+            $value = $trait->getValueForMethod('getName');
+            $this->assertEquals($trait->getName(), $value);
+        }
+    }
+
+    public function testAnchoredRecursiveGetIfValueNotSetInCurrentTrait()
+    {
+        $traits = $this->getAnchoredRecursiveGraph();
+        $traits[0]->setTestValue('test.value');
+        $finalTrait = end($traits);
+        $value = $finalTrait->getValueForMethod('getTestValue');
+        $this->assertEquals('test.value', $value);
+    }
+
+    public function testAnchoredRecursiveGetParentForValue()
+    {
+        $traits = $this->getAnchoredRecursiveGraph();
+        $finalTrait = end($traits);
+        $traitNames = $this->getRecursiveTraitNames();
+        $traitMap = array_combine($traitNames, $traits);
+        foreach ($traitNames as $traitName) {
+            $parent = $finalTrait->getParentForValue('getName', $traitName);
+            $this->assertEquals($traitMap[$traitName], $parent);
+        }
+    }
+
+    public function testAnchoredRecursiveGetRootParent()
+    {
+        $traits = $this->getAnchoredRecursiveGraph();
         $rootTrait = $traits[0];
         $traitNames = $this->getRecursiveTraitNames();
         $traitMap = array_combine($traitNames, $traits);
