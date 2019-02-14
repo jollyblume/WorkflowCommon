@@ -23,7 +23,7 @@ abstract class BaseCollectionTraitTest extends TestCase
     abstract protected function createCollection(string $name, array $elements = []) : ArrayCollectionInterface;
 
     private $propertyAccessor;
-    
+
     /** @SuppressWarnings(PHPMD.StaticAccess) */
     protected function getPropertyAccessor()
     {
