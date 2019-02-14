@@ -7,6 +7,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use JBJ\Workflow\Traits\ElementParentTrait;
 use PHPUnit\Framework\TestCase;
 
+/** @SuppressWarnings(PHPMD.TooManyPublicMethods) */
 class ElementParentTraitTest extends TestCase
 {
     public function testIfEmpty()
