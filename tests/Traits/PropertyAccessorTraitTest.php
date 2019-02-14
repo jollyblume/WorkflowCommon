@@ -42,7 +42,9 @@ class PropertyAccessorTraitTest extends TestCase
             use ElementParentTrait;
             use PropertyAccessorTrait{
                 setPropertyAccessor as public;
-                getPropertyAccessor as protected;
+                setPersistPropertyAccessorHere as public;
+                persistPropertyAccessorHere as public;
+                setPersistPropertyAccessorHere as public;
             }
             private $name;
             private $testValue;
@@ -109,5 +111,31 @@ class PropertyAccessorTraitTest extends TestCase
             $value = $trait->findPropertyAccessor();
             $this->assertInstanceOf(PropertyAccessorInterface::class, $value);
         }
+    }
+
+    public function testHereDefaults()
+    {
+        $trait = $this->getResursiveTrait('test.trait');
+        $this->assertFalse($trait->persistPropertyAccessorHere());
+        $this->assertNull($trait->getPropertyAccessor());
+    }
+
+    public function testHereDefaultsWhenTrue()
+    {
+        $trait = $this->getResursiveTrait('test.trait');
+        $trait->setPersistPropertyAccessorHere(true);
+        $this->assertInstanceOf(PropertyAccessorInterface::class, $trait->getPropertyAccessor());
+        $this->assertTrue($trait->persistPropertyAccessorHere());
+    }
+
+    public function testHereGraph()
+    {
+        $traits = $this->getRecursiveGraph();
+        $traits[0]->setPersistPropertyAccessorHere(true);
+        $this->assertTrue($traits[0]->persistPropertyAccessorHere());
+        $trait = end($traits);
+        $propertyAccessor = $trait->findPropertyAccessor();
+        $traits[0]->setPersistPropertyAccessorHere(false);
+        $this->assertEquals($propertyAccessor, $traits[0]->getPropertyAccessor());
     }
 }

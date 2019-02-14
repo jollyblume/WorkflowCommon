@@ -12,7 +12,12 @@ trait PropertyAccessorTrait
 
     public function getPropertyAccessor()
     {
-        return $this->propertyAccessor;
+        $propertyAccessor = $this->propertyAccessor;
+        if (!$propertyAccessor instanceof PropertyAccessorInterface && $this->persistPropertyAccessorHere()) {
+            $propertyAccessor = $this->createPropertyAccessor();
+            $this->setPropertyAccessor($propertyAccessor);
+        }
+        return $propertyAccessor;
     }
 
     protected function setPropertyAccessor(PropertyAccessorInterface $propertyAccessor)
@@ -36,13 +41,7 @@ trait PropertyAccessorTrait
         if (null === $propertyAccessor && method_exists($this, 'getValueForMethod')) {
             $propertyAccessor = $this->getValueForMethod('getPropertyAccessor');
         }
-        if (!$propertyAccessor instanceof PropertyAccessorInterface) {
-            $propertyAccessor = $this->createPropertyAccessor();
-        }
-        if ($this->persistPropertyAccessorHere()) {
-            $this->setPropertyAccessor($propertyAccessor);
-        }
-        return $propertyAccessor;
+        return $propertyAccessor ?: $this->createPropertyAccessor();
     }
 
     /** @SuppressWarnings(PHPMD.StaticAccess) */
