@@ -80,7 +80,6 @@ abstract class BaseCollectionTraitTest extends TestCase
                 return $this->parent;
             }
             public function setParent(
-
                 $parent
             ) {
                 $this->parent = $parent;
@@ -92,6 +91,10 @@ abstract class BaseCollectionTraitTest extends TestCase
             public function setOtherValue($otherValue)
             {
                 $this->otherValue = $otherValue;
+            }
+            public function __toString()
+            {
+                return $this->getName();
             }
         };
         return $element;
@@ -196,7 +199,6 @@ abstract class BaseCollectionTraitTest extends TestCase
      */
     public function testRighteousEnv()
     {
-        $testClass = $this->getTestClass();
         $isGraph = $this->isGraph();
         $rules = $this->getRules();
         $expectedRules = $isGraph ? ['name', 'parent'] : [];
@@ -793,6 +795,7 @@ abstract class BaseCollectionTraitTest extends TestCase
             $this->assertFalse(isset($collection[$key]));
         }
     }
+
     /** @depends testDataProvider */
     public function testMatchingWithSortingPreservesKeys($providerData)
     {
@@ -831,5 +834,75 @@ abstract class BaseCollectionTraitTest extends TestCase
             $actual[$key] = $value->getOtherValue();
         }
         $this->assertEquals($sortMap, $actual, $datasetIndex);
+    }
+
+    /** @depends testDataProvider */
+    public function testClear($providerData)
+    {
+        $elements = $this->getNextDataset(__FUNCTION__, $providerData);
+        if (null === $elements) {
+            return;
+        }
+        if (array_key_exists('__DATASETINDEX__', $elements)) {
+            $datasetIndex = $elements['__DATASETINDEX__'];
+            unset($elements['__DATASETINDEX__']);
+        }
+
+        // actual test follows:
+        $collection = $this->createCollection($datasetIndex, $elements);
+        $collection->clear();
+        $this->assertEquals([], $collection->toArray());
+    }
+
+    /** @depends testDataProvider */
+    public function testSlice($providerData)
+    {
+        $elements = $this->getNextDataset(__FUNCTION__, $providerData);
+        if (null === $elements) {
+            return;
+        }
+        if (array_key_exists('__DATASETINDEX__', $elements)) {
+            $datasetIndex = $elements['__DATASETINDEX__'];
+            unset($elements['__DATASETINDEX__']);
+        }
+
+        // actual test follows:
+        $collection = $this->createCollection($datasetIndex, $elements);
+        $expectedValue = $collection->last();
+        $value = $collection->slice(-1, 1);
+
+        $this->assertEquals($expectedValue, array_shift($value));
+    }
+
+    /** @depends testDataProvider */
+    public function testPartition($providerData)
+    {
+        $elements = $this->getNextDataset(__FUNCTION__, $providerData);
+        if (null === $elements) {
+            return;
+        }
+        if (array_key_exists('__DATASETINDEX__', $elements)) {
+            $datasetIndex = $elements['__DATASETINDEX__'];
+            unset($elements['__DATASETINDEX__']);
+        }
+
+        // actual test follows:
+        $collection = $this->createCollection($datasetIndex, $elements);
+        $expectedPassed = [];
+        $expectedFailed = [];
+        foreach ($collection as $key => $value) {
+            if (is_string($key)) {
+                $expectedPassed[$key] = $value;
+            }
+            if (!is_string($key)) {
+                $expectedFailed[$key] = $value;
+            }
+        }
+        $predicate = function ($key, $value) {
+            return is_string($key);
+        };
+        list($passed, $failed) = $collection->partition($predicate);
+        $this->assertEquals($expectedPassed, $passed->toArray());
+        $this->assertEquals($expectedFailed, $failed->toArray());
     }
 }

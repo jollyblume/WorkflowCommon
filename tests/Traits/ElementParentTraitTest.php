@@ -71,6 +71,14 @@ class ElementParentTraitTest extends TestCase
         return $traits;
     }
 
+    public function testRecursiveGetValueNullIfMethodMissing()
+    {
+        $traits = $this->getRecursiveGraph();
+        $finalTrait = end($traits);
+        $value = $finalTrait->getValueForMethod('notAMethodYo');
+        $this->assertNull($value);
+    }
+
     public function testRecursiveGetValueNullIfValueNotSet()
     {
         $traits = $this->getRecursiveGraph();
@@ -95,6 +103,32 @@ class ElementParentTraitTest extends TestCase
         $finalTrait = end($traits);
         $value = $finalTrait->getValueForMethod('getTestValue');
         $this->assertEquals('test.value', $value);
+    }
+
+    public function testRecursiveHasValueTrue()
+    {
+        $traits = $this->getRecursiveGraph();
+        $finalTrait = end($traits);
+        $traits[0]->setTestValue('this-is-it');
+        $this->assertTrue($finalTrait->hasValueForMethod('getTestValue'));
+    }
+
+    public function testRecursiveHasValueFalse()
+    {
+        $traits = $this->getRecursiveGraph();
+        $finalTrait = end($traits);
+        $this->assertFalse($finalTrait->hasValueForMethod('getTestValue'));
+    }
+
+    public function testRecursiveGetParentForValueMethodMissing()
+    {
+        $traits = $this->getRecursiveGraph();
+        $finalTrait = end($traits);
+        $traitNames = $this->getRecursiveTraitNames();
+        foreach ($traitNames as $traitName) {
+            $parent = $finalTrait->getParentForValue('notAMethodYo', $traitName);
+            $this->assertNull($parent);
+        }
     }
 
     public function testRecursiveGetParentForValue()
