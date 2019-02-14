@@ -18,37 +18,76 @@ trait GraphCollectionTrait
     use CollectionCommonTrait, ElementNameTrait, ElementParentTrait, PropertyAccessorTrait;
 
     private $constraints;
+    private $unusedRules;
 
-    protected function initializeTrait(string $name, array $elements = [], array $rules = [], PropertyAccessorInterface $propertyAccessor = null)
+    protected function getConstraints()
     {
-        $this->setName($name);
-        $constraints = new ArrayCollection();
-        foreach (['name', 'parent'] as $key) {
+        $constraints = $this->constraints;
+        if (null === $constraints) {
+            $constraints = new ArrayCollection();
+            $this->constraints = $constraints;
+        }
+        return $constraints;
+    }
+
+    protected function getUnusedRules()
+    {
+        $unusedRules = $this->unusedRules;
+        if (null === $unusedRules) {
+            $unusedRules = new ArrayCollection();
+            $this->unusedRules = $unusedRules;
+        }
+        return $unusedRules;
+    }
+
+    protected function getRequiredRules()
+    {
+        $requiredRules = [
+            'name',
+            'parent',
+        ];
+        return $requiredRules;
+    }
+
+    protected function partitionRules(array &$rules, array $targetRules)
+    {
+        $constraints = $this->getConstraints();
+        foreach ($targetRules as $key) {
             if (array_key_exists($key, $rules)) {
                 $constraints[$key] = new ClassnameMetadata($key, $rules[$key]);
                 unset($rules[$key]);
             }
         }
-        if (!empty($rules)) {
-            throw new \JBJ\Workflow\Exception\FixMeException(sprintf('Unknown integrity rules found "%s"', join(',', array_keys($rules))));
-        }
+    }
+
+    protected function assertRequiredRules()
+    {
+        $requiredRules = $this->getRequiredRules();
+        $constraints = $this->getConstraints();
         $ruleErrors = [];
-        foreach (['name', 'parent'] as $key) {
+        foreach ($requiredRules as $key) {
             if (!isset($constraints[$key])) {
                 $ruleErrors[] = $key;
             }
+            if (!empty($ruleErrors)) {
+                throw new \JBJ\Workflow\Exception\FixMeException(sprintf('Missing constraints "%s".', join(',', $ruleErrors)));
+            }
         }
-        if (!empty($ruleErrors)) {
-            throw new \JBJ\Workflow\Exception\FixMeException(sprintf('Missing constraints "%s".', join(',', $ruleErrors)));
-        }
-        $this->constraints = $constraints;
+    }
+
+    protected function initializeTrait(string $name, array $elements = [], array $rules = [], PropertyAccessorInterface $propertyAccessor = null)
+    {
+        $this->setName($name);
+        $this->partitionRules($rules, $this->getRequiredRules());
+        $this->assertRequiredRules();
+        $this->unusedRules = new ArrayCollection($rules);
         $this->setPropertyAccessor($propertyAccessor);
         $this->saveChildren($elements);
     }
 
     private function assertInternalConfigurationIsSet()
     {
-        foreach (['name', 'constraints'] as $property) {
+        foreach (['name', 'constraints', 'unusedRules'] as $property) {
             if (null === $this->$property) {
                 throw new \JBJ\Workflow\Exception\FixMeException('Internal configuration not set');
             }
@@ -66,7 +105,7 @@ trait GraphCollectionTrait
 
     private function transformKey($element)
     {
-        $constraint = $this->constraints['name'];
+        $constraint = $this->getConstraints()['name'];
         $property = $constraint[$element];
         if (null === $property) {
             throw new \JBJ\Workflow\Exception\FixMeException(sprintf('Invalid element "%s", no name property defined.', get_class($element)));
@@ -81,7 +120,7 @@ trait GraphCollectionTrait
 
     private function setNewParent($element, $newParent)
     {
-        $constraint = $this->constraints['parent'];
+        $constraint = $this->getConstraints()['parent'];
         $property = $constraint[$element];
         if (null === $property) {
             throw new \JBJ\Workflow\Exception\FixMeException(sprintf('Invalid element "%s", no parent property defined.', get_class($element)));
