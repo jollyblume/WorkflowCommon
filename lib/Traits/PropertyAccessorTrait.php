@@ -20,7 +20,7 @@ trait PropertyAccessorTrait
         return $propertyAccessor;
     }
 
-    protected function setPropertyAccessor(PropertyAccessorInterface $propertyAccessor)
+    protected function setPropertyAccessor(?PropertyAccessorInterface $propertyAccessor)
     {
         $this->propertyAccessor = $propertyAccessor;
     }

@@ -209,7 +209,7 @@ trait GraphCollectionTrait
     {
         foreach (['name', 'constraints', 'unusedRules'] as $property) {
             if (null === $this->$property) {
-                throw new \JBJ\Workflow\Exception\FixMeException('Internal configuration not set');
+                throw new \JBJ\Workflow\Exception\FixMeException('Internal configuration not set' . $property);
             }
         }
     }

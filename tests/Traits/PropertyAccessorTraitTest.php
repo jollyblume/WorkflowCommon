@@ -22,6 +22,13 @@ class PropertyAccessorTraitTest extends TestCase
         return $trait;
     }
 
+    public function testFindPropertyAccessorCanBeSetNull()
+    {
+        $trait = $this->getTrait();
+        $trait->setPropertyAccessor(null);
+        $this->assertNull($trait->getPropertyAccessor());
+    }
+
     public function testEarlyGetReturnsNull()
     {
         $trait = $this->getTrait();

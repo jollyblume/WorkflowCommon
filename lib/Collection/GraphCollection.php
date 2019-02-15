@@ -2,7 +2,6 @@
 
 namespace JBJ\Workflow\Collection;
 
-use Symfony\Component\PropertyAccess\PropertyAccess;
 use Symfony\Component\PropertyAccess\PropertyAccessorInterface;
 
 /**
