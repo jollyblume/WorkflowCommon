@@ -49,6 +49,40 @@ use Symfony\Component\PropertyAccess\PropertyAccessorInterface;
  *
  * Parent accessors have no special logic. They are set when added to the parent
  * graph node.
+ *
+ * Initialization of the trait must be done in the constructor.
+ *
+ * A $rules array describes the name and parent accessors expected from child
+ * elements.
+ *
+ * Any $rules not used internally will be published as $unusedRules. There is no
+ * purpose for this behavior, yet. It is intended to allow metadata to be added
+ * easily.
+ *
+ * There must be a rule for both name and parent. For instance:
+ *  $rules = [
+ *      'name' => [
+ *          'name',
+ *          'isDisabled' => false,
+ *          'isValid' => true,
+ *      ],
+ *      'parent' => [
+ *          'parent',
+ *          'isDisabled' => false,
+ *          'isValid' => true,
+ *      ],
+ *      'unused-rule' => [],
+ *  ];
+ * where, 'unused-rule' will be an $unusedRules element.
+ *
+ * Internally, $rules are converted to an ArrayCollection of ClassnameMetadata
+ * children.
+ *
+ * A property accessor is required internally. If not provided to the constructor,
+ * the graph is searched to the root node for one and created if not found.
+ *
+ * Call setPersistPropertyAccessor(true) to force the property accessor to be
+ * stored locally, once found.
  */
 trait GraphCollectionTrait
 {
@@ -57,6 +91,13 @@ trait GraphCollectionTrait
     private $constraints;
     private $unusedRules;
 
+    /**
+     * Get the collection of constraints
+     *
+     * Creates the ArrayCollection, if needed.
+     *
+     * @return ArrayCollection
+     */
     protected function getConstraints()
     {
         $constraints = $this->constraints;
@@ -67,6 +108,13 @@ trait GraphCollectionTrait
         return $constraints;
     }
 
+    /**
+     * Get unused rules
+     *
+     * These are artifacts from the rules provided to initializeTrait().
+     *
+     * @return array metadata
+     */
     public function getUnusedRules()
     {
         $unusedRules = $this->unusedRules;
@@ -77,6 +125,11 @@ trait GraphCollectionTrait
         return $unusedRules;
     }
 
+    /**
+     * Get the rules required for the trait to operate.
+     *
+     * @return array required rules
+     */
     protected function getRequiredRules()
     {
         $requiredRules = [
@@ -86,6 +139,14 @@ trait GraphCollectionTrait
         return $requiredRules;
     }
 
+    /**
+     * Partition target rules from the provided rules.
+     *
+     * Partitioned rules are added to the constraints collection and removed
+     * from the provided rules.
+     *
+     * @param array $targetRules
+     */
     protected function partitionRules(array &$rules, array $targetRules)
     {
         $constraints = $this->getConstraints();
@@ -97,6 +158,11 @@ trait GraphCollectionTrait
         }
     }
 
+    /**
+     * Assert all required rules are provided
+     *
+     * @throws \JBJ\Workflow\Exception\FixMeException
+     */
     protected function assertRequiredRules()
     {
         $requiredRules = $this->getRequiredRules();
@@ -112,6 +178,16 @@ trait GraphCollectionTrait
         }
     }
 
+    /**
+     * Initialize the trait
+     *
+     * $elements are saved until first access.
+     *
+     * @param string $name Collection name.
+     * @param array $elements Initial collection elements, default = []
+     * @param array $rules
+     * @param PropertyAccessorInterface $propertyAccessor
+     */
     protected function initializeTrait(string $name, array $elements = [], array $rules = [], PropertyAccessorInterface $propertyAccessor = null)
     {
         $this->setName($name);
@@ -124,6 +200,11 @@ trait GraphCollectionTrait
         $this->saveChildren($elements);
     }
 
+    /**
+     * Assert all internal configuration is initialized
+     *
+     * @throws \JBJ\Workflow\Exception\FixMeException
+     */
     private function assertInternalConfigurationIsSet()
     {
         foreach (['name', 'constraints', 'unusedRules'] as $property) {
@@ -133,6 +214,13 @@ trait GraphCollectionTrait
         }
     }
 
+    /**
+     * Set the children
+     *
+     * Creates the ArrayCollection from the $elements
+     *
+     * @param array $elements
+     */
     private function setChildren(array $elements)
     {
         $this->assertInternalConfigurationIsSet();
@@ -142,6 +230,12 @@ trait GraphCollectionTrait
         }
     }
 
+    /**
+     * Get the key from the element
+     *
+     * @param mixed $element
+     * @return string
+     */
     private function transformKey($element)
     {
         $constraint = $this->getConstraints()['name'];
@@ -157,6 +251,12 @@ trait GraphCollectionTrait
         return $key;
     }
 
+    /**
+     * Set a child's parent
+     *
+     * @param mixed $element Child
+     * @param mixed $newParent Parent to set (can be null).
+     */
     private function setNewParent($element, $newParent)
     {
         $constraint = $this->getConstraints()['parent'];
@@ -171,6 +271,12 @@ trait GraphCollectionTrait
         $propertyAccessor->setValue($element, $property, $newParent);
     }
 
+    /**
+     * Set an element
+     *
+     * @param mixed $key
+     * @param object $element
+     */
     public function set($key, $element)
     {
         $key = $this->transformKey($element);
@@ -179,18 +285,27 @@ trait GraphCollectionTrait
         $children[$key] = $element;
     }
 
+    /**
+     * Add an element
+     *
+     * Gets the key from the element and calls set
+     *
+     * @param object $element
+     */
     public function add($element)
     {
         $key = $this->transformKey($element);
-        if (is_string($key)) {
-            $this->set($key, $element);
-            return;
-        }
-        $children = $this->getChildren();
-        $children[] = $element;
-        $this->setNewParent($element, $this);
+        return $this->set($key, $element);
     }
 
+    /**
+     * Remove an element with it's key
+     *
+     * Set's the element's parent to null.
+     *
+     * @param string $key
+     * @return object Element removed
+     */
     public function remove($key)
     {
         $children = $this->getChildren();
@@ -201,6 +316,14 @@ trait GraphCollectionTrait
         return $element;
     }
 
+    /**
+     * Remove an element with it's key
+     *
+     * Set's the element's parent to null.
+     *
+     * @param object $element
+     * @return bool is successful
+     */
     public function removeElement($element)
     {
         $children = $this->getChildren();
