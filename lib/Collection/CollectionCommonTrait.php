@@ -297,6 +297,9 @@ trait CollectionCommonTrait
      */
     public function __toString()
     {
+        if (method_exists($this, 'getName')) {
+            return $this->getName();
+        }
         return strval($this->getChildren());
     }
 }
