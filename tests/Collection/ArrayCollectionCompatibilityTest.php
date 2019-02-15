@@ -11,17 +11,4 @@ class ArrayCollectionCompatibilityTest extends BaseCollectionTraitTest
     {
         return ComposedCollection::class;
     }
-
-    protected function getRules() : array
-    {
-        return [];
-    }
-
-    /** @SuppressWarnings(PHPMD.UnusedFormalParameter) */
-    protected function createCollection(string $name, array $elements = []) : ArrayCollectionInterface
-    {
-        $testClass = $this->getTestClass();
-        $collection = new $testClass($elements);
-        return $collection;
-    }
 }

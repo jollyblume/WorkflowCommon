@@ -2,40 +2,18 @@
 
 namespace JBJ\Workflow\Tests\Collection;
 
-use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Criteria;
 use Doctrine\Common\Collections\Selectable;
-use Symfony\Component\PropertyAccess\PropertyAccess;
+use Doctrine\Common\Collections\ArrayCollection;
 use JBJ\Workflow\Collection\ArrayCollectionInterface;
-use JBJ\Workflow\Collection\ClassnameMetadata;
 use Ramsey\Uuid\Uuid;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @SuppressWarnings(PHPMD.TooManyMethods)
- * @SuppressWarnings(PHPMD.TooManyPublicMethods)
- * @SuppressWarnings(PHPMD.ExcessiveClassComplexity)
- */
 abstract class BaseCollectionTraitTest extends TestCase
 {
-    abstract protected function getTestClass() : string;
-    abstract protected function getRules() : array;
-    abstract protected function createCollection(string $name, array $elements = []) : ArrayCollectionInterface;
+    abstract protected function getTestClass();
 
-    private $propertyAccessor;
-
-    /** @SuppressWarnings(PHPMD.StaticAccess) */
-    protected function getPropertyAccessor()
-    {
-        $propertyAccessor = $this->propertyAccessor;
-        if (null === $propertyAccessor) {
-            $propertyAccessor = PropertyAccess::createPropertyAccessor();
-            $this->propertyAccessor = $propertyAccessor;
-        }
-        return $propertyAccessor;
-    }
-
-    private $isGraph;
+    private $isGraph; // don't use this directly
     protected function isGraph()
     {
         $isGraph = $this->isGraph;
@@ -66,6 +44,13 @@ abstract class BaseCollectionTraitTest extends TestCase
             $this->isGraph = $isGraph;
         }
         return $isGraph;
+    }
+
+    protected function createCollection(string $name, array $elements = []) : ArrayCollectionInterface
+    {
+        $testClass = $this->getTestClass();
+        $collection = $this->isGraph() ? new $testClass($name, $elements) : new $testClass($elements);
+        return $collection;
     }
 
     protected function createAcceptableElement(string $key)
@@ -142,22 +127,6 @@ abstract class BaseCollectionTraitTest extends TestCase
         ];
     }
 
-    private $constraints;
-    protected function buildConstraints()
-    {
-        $constraints = $this->constraints;
-        if (null === $constraints) {
-            $rules = $this->getRules();
-            $constraints = new ArrayCollection();
-            foreach (['name', 'parent'] as $key) {
-                if (array_key_exists($key, $rules)) {
-                    $constraints[$key] = new ClassnameMetadata($key, $rules[$key]);
-                }
-            }
-        }
-        return $constraints;
-    }
-
     protected function buildDataProvider()
     {
         $isGraph = $this->isGraph();
@@ -197,73 +166,35 @@ abstract class BaseCollectionTraitTest extends TestCase
     public function testExpectedInterfaces()
     {
         $collection = $this->createCollection('test.collection');
-        $this->assertInstanceOf(Selectable::class, $collection);
         $this->assertInstanceOf(ArrayCollectionInterface::class, $collection);
+        $testClass = $this->getTestClass();
+        $this->assertInstanceOf($testClass, $collection);
     }
 
-    /**
-     * @group init
-     * @group failing
-     */
-    public function testRighteousEnv()
-    {
-        $isGraph = $this->isGraph();
-        $rules = $this->getRules();
-        $expectedRules = $isGraph ? ['name', 'parent'] : [];
-        foreach ($expectedRules as $rule) {
-            $this->assertArrayHasKey($rule, $rules);
-        }
-        if (!$isGraph) {
-            $this->assertEmpty($expectedRules);
-        }
-        return $rules;
-    }
-
-    /**
-     * This is the data provider entry point
-     * @depends testRighteousEnv
-     * @group init
-     * @group failing
-     */
-    public function testDataProvider($rules)
+    /** This is the data provider entry point */
+    public function testDataProvider()
     {
         $providerData = $this->buildDataProvider();
-        $expectedCount = empty($rules) ? 6 : 3;
+        $expectedCount = $this->isGraph() ? 3 : 6;
         $expectedCount++; // for $providerData['__DATAPROVIDER__']
         $this->assertEquals($expectedCount, count($providerData));
         return $providerData;
     }
 
-    /**
-     * @group init
-     * @group failing
-     */
     public function testCreateAcceptableElement()
     {
         $element = $this->createAcceptableElement('test.key');
-        $constraints = $this->buildConstraints();
-        $propertyAccessor = $this->getPropertyAccessor();
         if ($this->isGraph()) {
-            $name = $propertyAccessor->getValue($element, $constraints['name'][$element]);
-            $this->assertEquals('test.key', $name);
-            $parentReadable = $propertyAccessor->isReadable($element, $constraints['parent'][$element]);
-            $this->assertTrue($parentReadable);
-            $parentWritable = $propertyAccessor->isWritable($element, $constraints['parent'][$element]);
-            $this->assertTrue($parentWritable);
+            $this->assertTrue(method_exists($element, 'getName'));
+            $this->assertTrue(method_exists($element, 'getParent'));
+            $this->assertTrue(method_exists($element, 'setParent'));
         }
+        $this->assertTrue(method_exists($element, 'getOtherValue'));
+        $this->assertTrue(method_exists($element, 'setOtherValue'));
         $this->assertTrue(method_exists($element, '__toString'));
-        $otherReadable = $propertyAccessor->isReadable($element, 'otherValue');
-        $this->assertTrue($otherReadable);
-        $otherWritable = $propertyAccessor->isWritable($element, 'otherValue');
-        $this->assertTrue($otherWritable);
     }
 
-    /**
-     * @depends testRighteousEnv
-     * @group init
-     * @group failing
-     */
-    public function testCreateCollection($rules)
+    public function testCreateCollection()
     {
         $elements = [
             $this->createAcceptableElement('test.element.1'),
@@ -271,15 +202,10 @@ abstract class BaseCollectionTraitTest extends TestCase
             $this->createAcceptableElement('test.element.3'),
         ];
         $collection = $this->createCollection('test.collection', $elements);
-        if ($this->isGraph()) {
-            $this->assertInstanceOf(ArrayCollection::class, $collection->getUnusedRules());
-        }
         $testClass = $this->getTestClass();
         $this->assertInstanceOf($testClass, $collection);
-        if (empty($rules)) {
-            $expectedElements = $elements;
-        }
-        if (!empty($rules)) {
+        $expectedElements = $elements;
+        if ($this->isGraph()) {
             $expectedElements = [
                 'test.element.1' => $elements[0],
                 'test.element.2' => $elements[1],
@@ -294,24 +220,18 @@ abstract class BaseCollectionTraitTest extends TestCase
         if (!$this->isGraph() || empty($elements)) {
             return $elements;
         }
-        $propertyAccessor = $this->getPropertyAccessor();
-        $constraints = $this->buildConstraints();
-        $constraint = $constraints['name'];
         $hydrated = [];
-        foreach ($elements as $element) {
-            $property = $constraint[$element];
-            $newKey = $propertyAccessor->getValue($element, $property);
-            $hydrated[$newKey] = $element;
+        foreach ($elements as $key => $element) {
+            if (!is_string($key)) {
+                $key = $element->getName();
+            }
+            $hydrated[$key] = $element;
         }
         return $hydrated;
     }
 
-    /**
-     * @depends testDataProvider
-     * @group init
-     * @group failing
-     */
-    public function testHydrateElementKeysUsingSet($providerData)
+    /** @depends testDataProvider */
+    public function testHydrateElementKeysUsingConstructor($providerData)
     {
         $elements = $this->getNextDataset(__FUNCTION__, $providerData);
         if (null === $elements) {
@@ -328,11 +248,28 @@ abstract class BaseCollectionTraitTest extends TestCase
         $this->assertEquals($expectedElements, $collection->toArray());
     }
 
-    /**
-     * @depends testDataProvider
-     * @group init
-     * @group failing
-     */
+    /** @depends testDataProvider */
+    public function testHydrateElementKeysUsingSet($providerData)
+    {
+        $elements = $this->getNextDataset(__FUNCTION__, $providerData);
+        if (null === $elements) {
+            return;
+        }
+        if (array_key_exists('__DATASETINDEX__', $elements)) {
+            $datasetIndex = $elements['__DATASETINDEX__'];
+            unset($elements['__DATASETINDEX__']);
+        }
+
+        // actual test follows:
+        $collection = $this->createCollection($datasetIndex);
+        foreach ($elements as $key => $element) {
+            $collection[$key] = $element;
+        }
+        $expectedElements = $this->hydrateElementKeys($elements);
+        $this->assertEquals($expectedElements, $collection->toArray());
+    }
+
+    /** @depends testDataProvider */
     public function testHydrateElementKeysUsingAdd($providerData)
     {
         $elements = $this->getNextDataset(__FUNCTION__, $providerData);
@@ -356,11 +293,7 @@ abstract class BaseCollectionTraitTest extends TestCase
         $this->assertEquals($expectedElements, $collection->toArray());
     }
 
-    /**
-     * @depends testDataProvider
-     * @group init
-     * @group failing
-     */
+    /** @depends testDataProvider */
     public function testElementParents($providerData)
     {
         if (!$this->isGraph()) {
@@ -378,23 +311,15 @@ abstract class BaseCollectionTraitTest extends TestCase
 
         // actual test follows:
         $collection = $this->createCollection($datasetIndex, $elements);
-        $constraints = $this->buildConstraints();
-        $constraint = $constraints['parent'];
-        $propertyAccessor = $this->getPropertyAccessor();
         foreach ($collection as $element) {
-            $property = $constraint[$element];
-            $parent = $propertyAccessor->getValue($element, $property);
+            $parent = $element->getParent();
             $this->assertEquals($collection, $parent);
         }
     }
 
-    /**********************
-     * Array Tests below
-     *********************/
+    /*********************** Array Tests below *********************/
 
-    /**
-     * @depends testDataProvider
-     */
+    /** @depends testDataProvider */
     public function testFirst($providerData)
     {
         $elements = $this->getNextDataset(__FUNCTION__, $providerData);
@@ -569,356 +494,356 @@ abstract class BaseCollectionTraitTest extends TestCase
         $this->assertSame(count($elements), $collection->count());
     }
 
-    /** @depends testDataProvider */
-    public function testIterator($providerData)
-    {
-        $elements = $this->getNextDataset(__FUNCTION__, $providerData);
-        if (null === $elements) {
-            return;
-        }
-        if (array_key_exists('__DATASETINDEX__', $elements)) {
-            $datasetIndex = $elements['__DATASETINDEX__'];
-            unset($elements['__DATASETINDEX__']);
-        }
-
-        // actual test follows:
-        $collection = $this->createCollection($datasetIndex, $elements);
-        $elements = $this->hydrateElementKeys($elements);
-        $iterations = 0;
-        foreach ($collection->getIterator() as $key => $item) {
-            $this->assertSame($elements[$key], $item, 'Item ' . $key . ' not match');
-            ++$iterations;
-        }
-
-        $this->assertEquals(count($elements), $iterations, 'Number of iterations not match');
-    }
-
-    /** @depends testDataProvider */
-    public function testEmpty($providerData)
-    {
-        $elements = $this->getNextDataset(__FUNCTION__, $providerData);
-        if (null === $elements) {
-            return;
-        }
-        if (array_key_exists('__DATASETINDEX__', $elements)) {
-            $datasetIndex = $elements['__DATASETINDEX__'];
-            unset($elements['__DATASETINDEX__']);
-        }
-
-        // actual test follows:
-        $collection = $this->createCollection($datasetIndex);
-        $this->assertTrue($collection->isEmpty(), 'Empty collection');
-        foreach ($elements as $key => $value) {
-            $collection[$key] = $value;
-        }
-        $this->assertFalse($collection->isEmpty(), 'Not empty collection for "' . $datasetIndex . '"."');
-        $this->assertCount(count($elements), $collection, 'Wrong collection count for "' . $datasetIndex . '"."');
-    }
-
-    /** @depends testDataProvider */
-    public function testRemove($providerData)
-    {
-        $elements = $this->getNextDataset(__FUNCTION__, $providerData);
-        if (null === $elements) {
-            return;
-        }
-        if (array_key_exists('__DATASETINDEX__', $elements)) {
-            $datasetIndex = $elements['__DATASETINDEX__'];
-            unset($elements['__DATASETINDEX__']);
-        }
-
-        // actual test follows:
-        $missingElement = $this->createAcceptableElement('test.id.zZ');
-        $collection = $this->createCollection($datasetIndex, $elements);
-        $elements = $this->hydrateElementKeys($elements);
-        $this->assertNull($collection->remove($missingElement->getName()));
-        foreach ($elements as $key => $value) {
-            $this->assertEquals($value, $collection->remove($key));
-        }
-        $this->assertTrue($collection->isEmpty(), 'Empty collection for "' . $datasetIndex . '"."');
-    }
-
-    /** @depends testDataProvider */
-    public function testRemoveElement($providerData)
-    {
-        $elements = $this->getNextDataset(__FUNCTION__, $providerData);
-        if (null === $elements) {
-            return;
-        }
-        if (array_key_exists('__DATASETINDEX__', $elements)) {
-            $datasetIndex = $elements['__DATASETINDEX__'];
-            unset($elements['__DATASETINDEX__']);
-        }
-
-        // actual test follows:
-        $missingElement = $this->createAcceptableElement('test.id.zZ');
-        $collection = $this->createCollection($datasetIndex, $elements);
-        $elements = $this->hydrateElementKeys($elements);
-        $this->assertFalse($collection->removeElement($missingElement));
-        foreach ($elements as $value) {
-            $this->assertTrue($collection->removeElement($value));
-        }
-        $this->assertTrue($collection->isEmpty(), 'Empty collection for "' . $datasetIndex . '"."');
-    }
-
-    /** @depends testDataProvider */
-    public function testContainsKey($providerData)
-    {
-        $elements = $this->getNextDataset(__FUNCTION__, $providerData);
-        if (null === $elements) {
-            return;
-        }
-        if (array_key_exists('__DATASETINDEX__', $elements)) {
-            $datasetIndex = $elements['__DATASETINDEX__'];
-            unset($elements['__DATASETINDEX__']);
-        }
-
-        // actual test follows:
-        $missingElement = $this->createAcceptableElement('test.id.zZ');
-        $collection = $this->createCollection($datasetIndex, $elements);
-        $elements = $this->hydrateElementKeys($elements);
-        $this->assertFalse($collection->containsKey($missingElement->getName(), 'Missing key found for "' . $datasetIndex . '"."'));
-        foreach (array_keys($elements) as $value) {
-            $this->assertTrue($collection->containsKey($value), 'Expected key not found for "' . $datasetIndex . '"."');
-        }
-    }
-
-    /** @depends testDataProvider */
-    public function testContains($providerData)
-    {
-        $elements = $this->getNextDataset(__FUNCTION__, $providerData);
-        if (null === $elements) {
-            return;
-        }
-        if (array_key_exists('__DATASETINDEX__', $elements)) {
-            $datasetIndex = $elements['__DATASETINDEX__'];
-            unset($elements['__DATASETINDEX__']);
-        }
-
-        // actual test follows:
-        $missingElement = $this->createAcceptableElement('test.id.zZ');
-        $collection = $this->createCollection($datasetIndex, $elements);
-        // $elements = $this->hydrateElementKeys($elements);
-        $this->assertFalse($collection->contains($missingElement), 'Missing element found for "' . $datasetIndex . '"."');
-        foreach ($elements as $value) {
-            $this->assertTrue($collection->contains($value), 'Expected element not found for "' . $datasetIndex . '"."');
-        }
-    }
-
-    /** @depends testDataProvider */
-    public function testExists($providerData)
-    {
-        $elements = $this->getNextDataset(__FUNCTION__, $providerData);
-        if (null === $elements) {
-            return;
-        }
-        if (array_key_exists('__DATASETINDEX__', $elements)) {
-            $datasetIndex = $elements['__DATASETINDEX__'];
-            unset($elements['__DATASETINDEX__']);
-        }
-
-        // actual test follows:
-        $missingElement = $this->createAcceptableElement('test.id.zZ');
-        $collection = $this->createCollection($datasetIndex, $elements);
-        $elements = $this->hydrateElementKeys($elements);
-        $this->assertFalse(isset($collection[$missingElement->getName()]), 'Missing key set for "' . $datasetIndex . '"."');
-        foreach (array_keys($elements) as$value) {
-            $this->assertTrue(isset($collection[$value]), 'Expected key not set for "' . $datasetIndex . '".');
-        }
-    }
-
-    /** @depends testDataProvider */
-    public function testIndexOf($providerData)
-    {
-        $elements = $this->getNextDataset(__FUNCTION__, $providerData);
-        if (null === $elements) {
-            return;
-        }
-        if (array_key_exists('__DATASETINDEX__', $elements)) {
-            $datasetIndex = $elements['__DATASETINDEX__'];
-            unset($elements['__DATASETINDEX__']);
-        }
-
-        // actual test follows:
-        $missingElement = $this->createAcceptableElement('test.id.zZ');
-        $collection = $this->createCollection($datasetIndex, $elements);
-        $elements = $this->hydrateElementKeys($elements);
-        $this->assertFalse($collection->indexOf($missingElement->getName()), 'Index of missing key found for "' . $datasetIndex . '"."');
-        foreach ($elements as $key => $value) {
-            $this->assertEquals($key, $collection->indexOf($value), 'Index of expected key not found for "' . $datasetIndex . '"."');
-        }
-    }
-
-    /** @depends testDataProvider */
-    public function testGet($providerData)
-    {
-        $elements = $this->getNextDataset(__FUNCTION__, $providerData);
-        if (null === $elements) {
-            return;
-        }
-        if (array_key_exists('__DATASETINDEX__', $elements)) {
-            $datasetIndex = $elements['__DATASETINDEX__'];
-            unset($elements['__DATASETINDEX__']);
-        }
-
-        // actual test follows:
-        $missingElement = $this->createAcceptableElement('test.id.zZ');
-        $collection = $this->createCollection($datasetIndex, $elements);
-        $elements = $this->hydrateElementKeys($elements);
-        $this->assertNull($collection[$missingElement->getName()], 'Missing element returned for "' . $datasetIndex . '"."');
-        foreach ($elements as $key => $value) {
-            $this->assertEquals($value, $collection[$key], 'Expected element not returned for "' . $datasetIndex . '"."');
-        }
-    }
-
-    /** @depends testDataProvider */
-    public function testToString($providerData)
-    {
-        $elements = $this->getNextDataset(__FUNCTION__, $providerData);
-        if (null === $elements) {
-            return;
-        }
-        if (array_key_exists('__DATASETINDEX__', $elements)) {
-            $datasetIndex = $elements['__DATASETINDEX__'];
-            unset($elements['__DATASETINDEX__']);
-        }
-
-        // actual test follows:
-        $collection = $this->createCollection($datasetIndex, $elements);
-        $this->assertTrue(is_string((string) $collection));
-    }
-
-    /** @depends testDataProvider */
-    public function testIssetAndUnset($providerData)
-    {
-        $elements = $this->getNextDataset(__FUNCTION__, $providerData);
-        if (null === $elements) {
-            return;
-        }
-        if (array_key_exists('__DATASETINDEX__', $elements)) {
-            $datasetIndex = $elements['__DATASETINDEX__'];
-            unset($elements['__DATASETINDEX__']);
-        }
-
-        // actual test follows:
-        $collection = $this->createCollection($datasetIndex, $elements);
-        $elements = $this->hydrateElementKeys($elements);
-        foreach (array_keys($elements) as $value) {
-            $this->assertTrue(isset($collection[$value]));
-            unset($collection[$value]);
-            $this->assertFalse(isset($collection[$value]));
-        }
-    }
-
-    /**
-     * @depends testDataProvider
-     * @SuppressWarnings(PHPMD.StaticAccess)
-    */
-    public function testMatchingWithSortingPreservesKeys($providerData)
-    {
-        $elements = $this->getNextDataset(__FUNCTION__, $providerData);
-        if (null === $elements) {
-            return;
-        }
-        if (array_key_exists('__DATASETINDEX__', $elements)) {
-            $datasetIndex = $elements['__DATASETINDEX__'];
-            unset($elements['__DATASETINDEX__']);
-        }
-        if (false === strpos($datasetIndex, '-graph')) {
-            return;
-        }
-
-        // actual test follows:
-        $collection = $this->createCollection($datasetIndex, $elements);
-        $elements = $this->hydrateElementKeys($elements);
-
-        $sortMap = [];
-        foreach ($collection as $key => $value) {
-            $sortOrder = strval(Uuid::uuid4());
-            $value->setOtherValue($sortOrder);
-            $sortMap[$key] = $sortOrder;
-        }
-        $sortSuccessful = asort($sortMap);
-        if (!$sortSuccessful) {
-            throw new \JBJ\Workflow\Exception\FixMeException('sort failed');
-        }
-        $matched = $collection
-            ->matching(new Criteria(null, ['otherValue' => Criteria::ASC]))
-            ->toArray();
-        $actual = [];
-        foreach ($matched as $key => $value) {
-            $actual[$key] = $value->getOtherValue();
-        }
-        $this->assertEquals($sortMap, $actual, $datasetIndex);
-    }
-
-    /** @depends testDataProvider */
-    public function testClear($providerData)
-    {
-        $elements = $this->getNextDataset(__FUNCTION__, $providerData);
-        if (null === $elements) {
-            return;
-        }
-        if (array_key_exists('__DATASETINDEX__', $elements)) {
-            $datasetIndex = $elements['__DATASETINDEX__'];
-            unset($elements['__DATASETINDEX__']);
-        }
-
-        // actual test follows:
-        $collection = $this->createCollection($datasetIndex, $elements);
-        $collection->clear();
-        $this->assertEquals([], $collection->toArray());
-    }
-
-    /** @depends testDataProvider */
-    public function testSlice($providerData)
-    {
-        $elements = $this->getNextDataset(__FUNCTION__, $providerData);
-        if (null === $elements) {
-            return;
-        }
-        if (array_key_exists('__DATASETINDEX__', $elements)) {
-            $datasetIndex = $elements['__DATASETINDEX__'];
-            unset($elements['__DATASETINDEX__']);
-        }
-
-        // actual test follows:
-        $collection = $this->createCollection($datasetIndex, $elements);
-        $expectedValue = $collection->last();
-        $value = $collection->slice(-1, 1);
-
-        $this->assertEquals($expectedValue, array_shift($value));
-    }
-
-    /** @depends testDataProvider */
-    public function testPartition($providerData)
-    {
-        $elements = $this->getNextDataset(__FUNCTION__, $providerData);
-        if (null === $elements) {
-            return;
-        }
-        if (array_key_exists('__DATASETINDEX__', $elements)) {
-            $datasetIndex = $elements['__DATASETINDEX__'];
-            unset($elements['__DATASETINDEX__']);
-        }
-
-        // actual test follows:
-        $collection = $this->createCollection($datasetIndex, $elements);
-        $expectedPassed = [];
-        $expectedFailed = [];
-        foreach ($collection as $key => $value) {
-            if (is_string($key)) {
-                $expectedPassed[$key] = $value;
-            }
-            if (!is_string($key)) {
-                $expectedFailed[$key] = $value;
-            }
-        }
-        $predicate = function ($key, $value) {
-            return is_string($key);
-        };
-        list($passed, $failed) = $collection->partition($predicate);
-        $this->assertEquals($expectedPassed, $passed->toArray());
-        $this->assertEquals($expectedFailed, $failed->toArray());
-    }
+    // /** @depends testDataProvider */
+    // public function testIterator($providerData)
+    // {
+    //     $elements = $this->getNextDataset(__FUNCTION__, $providerData);
+    //     if (null === $elements) {
+    //         return;
+    //     }
+    //     if (array_key_exists('__DATASETINDEX__', $elements)) {
+    //         $datasetIndex = $elements['__DATASETINDEX__'];
+    //         unset($elements['__DATASETINDEX__']);
+    //     }
+    //
+    //     // actual test follows:
+    //     $collection = $this->createCollection($datasetIndex, $elements);
+    //     $elements = $this->hydrateElementKeys($elements);
+    //     $iterations = 0;
+    //     foreach ($collection->getIterator() as $key => $item) {
+    //         $this->assertSame($elements[$key], $item, 'Item ' . $key . ' not match');
+    //         ++$iterations;
+    //     }
+    //
+    //     $this->assertEquals(count($elements), $iterations, 'Number of iterations not match');
+    // }
+    //
+    // /** @depends testDataProvider */
+    // public function testEmpty($providerData)
+    // {
+    //     $elements = $this->getNextDataset(__FUNCTION__, $providerData);
+    //     if (null === $elements) {
+    //         return;
+    //     }
+    //     if (array_key_exists('__DATASETINDEX__', $elements)) {
+    //         $datasetIndex = $elements['__DATASETINDEX__'];
+    //         unset($elements['__DATASETINDEX__']);
+    //     }
+    //
+    //     // actual test follows:
+    //     $collection = $this->createCollection($datasetIndex);
+    //     $this->assertTrue($collection->isEmpty(), 'Empty collection');
+    //     foreach ($elements as $key => $value) {
+    //         $collection[$key] = $value;
+    //     }
+    //     $this->assertFalse($collection->isEmpty(), 'Not empty collection for "' . $datasetIndex . '"."');
+    //     $this->assertCount(count($elements), $collection, 'Wrong collection count for "' . $datasetIndex . '"."');
+    // }
+    //
+    // /** @depends testDataProvider */
+    // public function testRemove($providerData)
+    // {
+    //     $elements = $this->getNextDataset(__FUNCTION__, $providerData);
+    //     if (null === $elements) {
+    //         return;
+    //     }
+    //     if (array_key_exists('__DATASETINDEX__', $elements)) {
+    //         $datasetIndex = $elements['__DATASETINDEX__'];
+    //         unset($elements['__DATASETINDEX__']);
+    //     }
+    //
+    //     // actual test follows:
+    //     $missingElement = $this->createAcceptableElement('test.id.zZ');
+    //     $collection = $this->createCollection($datasetIndex, $elements);
+    //     $elements = $this->hydrateElementKeys($elements);
+    //     $this->assertNull($collection->remove($missingElement->getName()));
+    //     foreach ($elements as $key => $value) {
+    //         $this->assertEquals($value, $collection->remove($key));
+    //     }
+    //     $this->assertTrue($collection->isEmpty(), 'Empty collection for "' . $datasetIndex . '"."');
+    // }
+    //
+    // /** @depends testDataProvider */
+    // public function testRemoveElement($providerData)
+    // {
+    //     $elements = $this->getNextDataset(__FUNCTION__, $providerData);
+    //     if (null === $elements) {
+    //         return;
+    //     }
+    //     if (array_key_exists('__DATASETINDEX__', $elements)) {
+    //         $datasetIndex = $elements['__DATASETINDEX__'];
+    //         unset($elements['__DATASETINDEX__']);
+    //     }
+    //
+    //     // actual test follows:
+    //     $missingElement = $this->createAcceptableElement('test.id.zZ');
+    //     $collection = $this->createCollection($datasetIndex, $elements);
+    //     $elements = $this->hydrateElementKeys($elements);
+    //     $this->assertFalse($collection->removeElement($missingElement));
+    //     foreach ($elements as $value) {
+    //         $this->assertTrue($collection->removeElement($value));
+    //     }
+    //     $this->assertTrue($collection->isEmpty(), 'Empty collection for "' . $datasetIndex . '"."');
+    // }
+    //
+    // /** @depends testDataProvider */
+    // public function testContainsKey($providerData)
+    // {
+    //     $elements = $this->getNextDataset(__FUNCTION__, $providerData);
+    //     if (null === $elements) {
+    //         return;
+    //     }
+    //     if (array_key_exists('__DATASETINDEX__', $elements)) {
+    //         $datasetIndex = $elements['__DATASETINDEX__'];
+    //         unset($elements['__DATASETINDEX__']);
+    //     }
+    //
+    //     // actual test follows:
+    //     $missingElement = $this->createAcceptableElement('test.id.zZ');
+    //     $collection = $this->createCollection($datasetIndex, $elements);
+    //     $elements = $this->hydrateElementKeys($elements);
+    //     $this->assertFalse($collection->containsKey($missingElement->getName(), 'Missing key found for "' . $datasetIndex . '"."'));
+    //     foreach (array_keys($elements) as $value) {
+    //         $this->assertTrue($collection->containsKey($value), 'Expected key not found for "' . $datasetIndex . '"."');
+    //     }
+    // }
+    //
+    // /** @depends testDataProvider */
+    // public function testContains($providerData)
+    // {
+    //     $elements = $this->getNextDataset(__FUNCTION__, $providerData);
+    //     if (null === $elements) {
+    //         return;
+    //     }
+    //     if (array_key_exists('__DATASETINDEX__', $elements)) {
+    //         $datasetIndex = $elements['__DATASETINDEX__'];
+    //         unset($elements['__DATASETINDEX__']);
+    //     }
+    //
+    //     // actual test follows:
+    //     $missingElement = $this->createAcceptableElement('test.id.zZ');
+    //     $collection = $this->createCollection($datasetIndex, $elements);
+    //     // $elements = $this->hydrateElementKeys($elements);
+    //     $this->assertFalse($collection->contains($missingElement), 'Missing element found for "' . $datasetIndex . '"."');
+    //     foreach ($elements as $value) {
+    //         $this->assertTrue($collection->contains($value), 'Expected element not found for "' . $datasetIndex . '"."');
+    //     }
+    // }
+    //
+    // /** @depends testDataProvider */
+    // public function testExists($providerData)
+    // {
+    //     $elements = $this->getNextDataset(__FUNCTION__, $providerData);
+    //     if (null === $elements) {
+    //         return;
+    //     }
+    //     if (array_key_exists('__DATASETINDEX__', $elements)) {
+    //         $datasetIndex = $elements['__DATASETINDEX__'];
+    //         unset($elements['__DATASETINDEX__']);
+    //     }
+    //
+    //     // actual test follows:
+    //     $missingElement = $this->createAcceptableElement('test.id.zZ');
+    //     $collection = $this->createCollection($datasetIndex, $elements);
+    //     $elements = $this->hydrateElementKeys($elements);
+    //     $this->assertFalse(isset($collection[$missingElement->getName()]), 'Missing key set for "' . $datasetIndex . '"."');
+    //     foreach (array_keys($elements) as$value) {
+    //         $this->assertTrue(isset($collection[$value]), 'Expected key not set for "' . $datasetIndex . '".');
+    //     }
+    // }
+    //
+    // /** @depends testDataProvider */
+    // public function testIndexOf($providerData)
+    // {
+    //     $elements = $this->getNextDataset(__FUNCTION__, $providerData);
+    //     if (null === $elements) {
+    //         return;
+    //     }
+    //     if (array_key_exists('__DATASETINDEX__', $elements)) {
+    //         $datasetIndex = $elements['__DATASETINDEX__'];
+    //         unset($elements['__DATASETINDEX__']);
+    //     }
+    //
+    //     // actual test follows:
+    //     $missingElement = $this->createAcceptableElement('test.id.zZ');
+    //     $collection = $this->createCollection($datasetIndex, $elements);
+    //     $elements = $this->hydrateElementKeys($elements);
+    //     $this->assertFalse($collection->indexOf($missingElement->getName()), 'Index of missing key found for "' . $datasetIndex . '"."');
+    //     foreach ($elements as $key => $value) {
+    //         $this->assertEquals($key, $collection->indexOf($value), 'Index of expected key not found for "' . $datasetIndex . '"."');
+    //     }
+    // }
+    //
+    // /** @depends testDataProvider */
+    // public function testGet($providerData)
+    // {
+    //     $elements = $this->getNextDataset(__FUNCTION__, $providerData);
+    //     if (null === $elements) {
+    //         return;
+    //     }
+    //     if (array_key_exists('__DATASETINDEX__', $elements)) {
+    //         $datasetIndex = $elements['__DATASETINDEX__'];
+    //         unset($elements['__DATASETINDEX__']);
+    //     }
+    //
+    //     // actual test follows:
+    //     $missingElement = $this->createAcceptableElement('test.id.zZ');
+    //     $collection = $this->createCollection($datasetIndex, $elements);
+    //     $elements = $this->hydrateElementKeys($elements);
+    //     $this->assertNull($collection[$missingElement->getName()], 'Missing element returned for "' . $datasetIndex . '"."');
+    //     foreach ($elements as $key => $value) {
+    //         $this->assertEquals($value, $collection[$key], 'Expected element not returned for "' . $datasetIndex . '"."');
+    //     }
+    // }
+    //
+    // /** @depends testDataProvider */
+    // public function testToString($providerData)
+    // {
+    //     $elements = $this->getNextDataset(__FUNCTION__, $providerData);
+    //     if (null === $elements) {
+    //         return;
+    //     }
+    //     if (array_key_exists('__DATASETINDEX__', $elements)) {
+    //         $datasetIndex = $elements['__DATASETINDEX__'];
+    //         unset($elements['__DATASETINDEX__']);
+    //     }
+    //
+    //     // actual test follows:
+    //     $collection = $this->createCollection($datasetIndex, $elements);
+    //     $this->assertTrue(is_string((string) $collection));
+    // }
+    //
+    // /** @depends testDataProvider */
+    // public function testIssetAndUnset($providerData)
+    // {
+    //     $elements = $this->getNextDataset(__FUNCTION__, $providerData);
+    //     if (null === $elements) {
+    //         return;
+    //     }
+    //     if (array_key_exists('__DATASETINDEX__', $elements)) {
+    //         $datasetIndex = $elements['__DATASETINDEX__'];
+    //         unset($elements['__DATASETINDEX__']);
+    //     }
+    //
+    //     // actual test follows:
+    //     $collection = $this->createCollection($datasetIndex, $elements);
+    //     $elements = $this->hydrateElementKeys($elements);
+    //     foreach (array_keys($elements) as $value) {
+    //         $this->assertTrue(isset($collection[$value]));
+    //         unset($collection[$value]);
+    //         $this->assertFalse(isset($collection[$value]));
+    //     }
+    // }
+    //
+    // /**
+    //  * @depends testDataProvider
+    //  * @SuppressWarnings(PHPMD.StaticAccess)
+    // */
+    // public function testMatchingWithSortingPreservesKeys($providerData)
+    // {
+    //     $elements = $this->getNextDataset(__FUNCTION__, $providerData);
+    //     if (null === $elements) {
+    //         return;
+    //     }
+    //     if (array_key_exists('__DATASETINDEX__', $elements)) {
+    //         $datasetIndex = $elements['__DATASETINDEX__'];
+    //         unset($elements['__DATASETINDEX__']);
+    //     }
+    //     if (false === strpos($datasetIndex, '-graph')) {
+    //         return;
+    //     }
+    //
+    //     // actual test follows:
+    //     $collection = $this->createCollection($datasetIndex, $elements);
+    //     $elements = $this->hydrateElementKeys($elements);
+    //
+    //     $sortMap = [];
+    //     foreach ($collection as $key => $value) {
+    //         $sortOrder = strval(Uuid::uuid4());
+    //         $value->setOtherValue($sortOrder);
+    //         $sortMap[$key] = $sortOrder;
+    //     }
+    //     $sortSuccessful = asort($sortMap);
+    //     if (!$sortSuccessful) {
+    //         throw new \JBJ\Workflow\Exception\FixMeException('sort failed');
+    //     }
+    //     $matched = $collection
+    //         ->matching(new Criteria(null, ['otherValue' => Criteria::ASC]))
+    //         ->toArray();
+    //     $actual = [];
+    //     foreach ($matched as $key => $value) {
+    //         $actual[$key] = $value->getOtherValue();
+    //     }
+    //     $this->assertEquals($sortMap, $actual, $datasetIndex);
+    // }
+    //
+    // /** @depends testDataProvider */
+    // public function testClear($providerData)
+    // {
+    //     $elements = $this->getNextDataset(__FUNCTION__, $providerData);
+    //     if (null === $elements) {
+    //         return;
+    //     }
+    //     if (array_key_exists('__DATASETINDEX__', $elements)) {
+    //         $datasetIndex = $elements['__DATASETINDEX__'];
+    //         unset($elements['__DATASETINDEX__']);
+    //     }
+    //
+    //     // actual test follows:
+    //     $collection = $this->createCollection($datasetIndex, $elements);
+    //     $collection->clear();
+    //     $this->assertEquals([], $collection->toArray());
+    // }
+    //
+    // /** @depends testDataProvider */
+    // public function testSlice($providerData)
+    // {
+    //     $elements = $this->getNextDataset(__FUNCTION__, $providerData);
+    //     if (null === $elements) {
+    //         return;
+    //     }
+    //     if (array_key_exists('__DATASETINDEX__', $elements)) {
+    //         $datasetIndex = $elements['__DATASETINDEX__'];
+    //         unset($elements['__DATASETINDEX__']);
+    //     }
+    //
+    //     // actual test follows:
+    //     $collection = $this->createCollection($datasetIndex, $elements);
+    //     $expectedValue = $collection->last();
+    //     $value = $collection->slice(-1, 1);
+    //
+    //     $this->assertEquals($expectedValue, array_shift($value));
+    // }
+    //
+    // /** @depends testDataProvider */
+    // public function testPartition($providerData)
+    // {
+    //     $elements = $this->getNextDataset(__FUNCTION__, $providerData);
+    //     if (null === $elements) {
+    //         return;
+    //     }
+    //     if (array_key_exists('__DATASETINDEX__', $elements)) {
+    //         $datasetIndex = $elements['__DATASETINDEX__'];
+    //         unset($elements['__DATASETINDEX__']);
+    //     }
+    //
+    //     // actual test follows:
+    //     $collection = $this->createCollection($datasetIndex, $elements);
+    //     $expectedPassed = [];
+    //     $expectedFailed = [];
+    //     foreach ($collection as $key => $value) {
+    //         if (is_string($key)) {
+    //             $expectedPassed[$key] = $value;
+    //         }
+    //         if (!is_string($key)) {
+    //             $expectedFailed[$key] = $value;
+    //         }
+    //     }
+    //     $predicate = function ($key, $value) {
+    //         return is_string($key);
+    //     };
+    //     list($passed, $failed) = $collection->partition($predicate);
+    //     $this->assertEquals($expectedPassed, $passed->toArray());
+    //     $this->assertEquals($expectedFailed, $failed->toArray());
+    // }
 }

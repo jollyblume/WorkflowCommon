@@ -13,7 +13,6 @@ trait ElementNameTrait
 
     public function getName()
     {
-        //todo exception if $name === null (not initialized) ???
         return $this->name;
     }
 }

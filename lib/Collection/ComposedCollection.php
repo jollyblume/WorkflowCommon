@@ -18,6 +18,6 @@ class ComposedCollection implements ArrayCollectionInterface
      */
     public function __construct(array $elements = [])
     {
-        $this->saveChildren($elements);
+        $this->saveElements($elements);
     }
 }

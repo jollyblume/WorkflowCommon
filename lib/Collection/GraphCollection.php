@@ -2,8 +2,6 @@
 
 namespace JBJ\Workflow\Collection;
 
-use Symfony\Component\PropertyAccess\PropertyAccessorInterface;
-
 /**
  * GraphCollection
  *
@@ -18,8 +16,9 @@ class GraphCollection implements ArrayCollectionInterface
      *
      * Initializes the trait
      */
-    public function __construct(string $name, array $elements = [], array $rules = [], PropertyAccessorInterface $propertyAccessor = null)
+    public function __construct(string $name, array $elements = [])
     {
-        $this->initializeTrait($name, $elements, $rules, $propertyAccessor);
+        $this->setName($name);
+        $this->saveElements($elements);
     }
 }

@@ -32,9 +32,9 @@ trait CollectionCommonTrait
      *
      * @param array $children
      */
-    protected function saveChildren(array $children)
+    protected function saveElements(array $elements)
     {
-        $this->children = $children;
+        $this->children = $elements;
     }
 
     /**
@@ -48,9 +48,12 @@ trait CollectionCommonTrait
     {
         $children = $this->children;
         if (!$children instanceof ArrayCollection) {
-            $children = is_array($children) ? $children : [];
-            $this->setChildren($children);
-            $children = $this->children;
+            $elements = is_array($children) ? $children : [];
+            $children = new ArrayCollection();
+            foreach ($elements as $key => $element) {
+                $children[$key] = $element;
+            }
+            $this->children = $children;
         }
         return $children;
     }

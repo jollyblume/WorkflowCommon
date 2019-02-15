@@ -29,19 +29,6 @@ trait CollectionTrait
     use CollectionCommonTrait;
 
     /**
-     * Create the composed ArrayCollection
-     *
-     * Called internally to create the ArrayCollection, when needed.
-     *
-     * @param array $elements
-     */
-    protected function setChildren(array $elements)
-    {
-        $children = new ArrayCollection($elements);
-        $this->children = $children;
-    }
-
-    /**
      * {@inheritdoc}
      */
     public function set($key, $value)
