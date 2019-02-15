@@ -193,9 +193,7 @@ trait GraphCollectionTrait
         $this->setName($name);
         $this->partitionRules($rules, $this->getRequiredRules());
         $this->assertRequiredRules();
-        if (!empty($rules)) {
-            $this->unusedRules = new ArrayCollection($rules);
-        }
+        $this->unusedRules = new ArrayCollection($rules);
         $this->setPropertyAccessor($propertyAccessor);
         $this->saveChildren($elements);
     }
@@ -207,10 +205,14 @@ trait GraphCollectionTrait
      */
     private function assertInternalConfigurationIsSet()
     {
+        $missing = [];
         foreach (['name', 'constraints', 'unusedRules'] as $property) {
             if (null === $this->$property) {
-                throw new \JBJ\Workflow\Exception\FixMeException('Internal configuration not set' . $property);
+                $missing[] = $property;
             }
+        }
+        if (!empty($missing)) {
+            throw new \JBJ\Workflow\Exception\FixMeException(sprintf('Missing internal configuration for [%s]', join(',', $missing)));
         }
     }
 
