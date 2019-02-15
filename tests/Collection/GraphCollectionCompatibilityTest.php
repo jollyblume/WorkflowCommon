@@ -75,4 +75,79 @@ class GraphCollectionCompatibilityTest extends BaseCollectionTraitTest
         $collection = new $testClass('test');
         $this->assertEquals([], $collection->getUnusedRules()->toArray());
     }
+
+    protected function getWellKnownElements()
+    {
+        $carts = [
+            'definition',
+            'workflow',
+            'place',
+            'transition',
+        ];
+        return $carts;
+    }
+
+    public function testAddCarts()
+    {
+        $testClass = $this->getTestClass();
+        $rules = [
+            'name' => [
+                'name',
+                'isDisabled' => false,
+                'isValid' => true,
+            ],
+            'parent' => [
+                'parent',
+                'isDisabled' => false,
+                'isValid' => true,
+            ],
+            'unused-rule' => true,
+        ];
+        $collection = new $testClass('test.collection', [], $rules);
+        $expectedUnusedRules = [
+            'unused-rule' => true,
+        ];
+        $this->assertEquals($expectedUnusedRules, $collection->getUnusedRules()->toArray());
+        $wellKnownElements = $this->getWellKnownElements();
+        foreach ($wellKnownElements as $elementName) {
+            $element = $this->createAcceptableElement($elementName);
+            $collection[] = $element;
+        }
+        foreach ($wellKnownElements as $elementName) {
+            $this->assertTrue(isset($collection[$elementName]));
+            $this->assertEquals($elementName, $collection[$elementName]->getName());
+        }
+    }
+
+    public function testSetCarts()
+    {
+        $testClass = $this->getTestClass();
+        $rules = [
+            'name' => [
+                'name',
+                'isDisabled' => false,
+                'isValid' => true,
+            ],
+            'parent' => [
+                'parent',
+                'isDisabled' => false,
+                'isValid' => true,
+            ],
+            'unused-rule' => true,
+        ];
+        $collection = new $testClass('test.collection', [], $rules);
+        $expectedUnusedRules = [
+            'unused-rule' => true,
+        ];
+        $this->assertEquals($expectedUnusedRules, $collection->getUnusedRules()->toArray());
+        $wellKnownElements = $this->getWellKnownElements();
+        foreach ($wellKnownElements as $elementName) {
+            $element = $this->createAcceptableElement($elementName);
+            $collection[$elementName] = $element;
+        }
+        foreach ($wellKnownElements as $elementName) {
+            $this->assertTrue(isset($collection[$elementName]));
+            $this->assertEquals($elementName, $collection[$elementName]->getName());
+        }
+    }
 }

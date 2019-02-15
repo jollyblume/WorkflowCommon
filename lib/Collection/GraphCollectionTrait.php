@@ -296,8 +296,7 @@ trait GraphCollectionTrait
      */
     public function add($element)
     {
-        $key = $this->transformKey($element);
-        return $this->set($key, $element);
+        return $this->set(null, $element);
     }
 
     /**
