@@ -3,6 +3,7 @@
 namespace JBJ\Workflow\Tests\Traits;
 
 use JBJ\Workflow\Collection\ArrayCollectionInterface;
+use JBJ\Workflow\Collection\CollectionTrait;
 use JBJ\Workflow\Traits\ExpectedInterfaceTrait;
 use PHPUnit\Framework\TestCase;
 
@@ -25,29 +26,9 @@ class ExpectedInterfaceTraitTest extends TestCase
     {
         $expectedInterfaces = [
             \Traversable::class,
+            \ArrayAccess::class,
         ];
         return $expectedInterfaces;
-    }
-
-    public function testHas()
-    {
-        $trait = $this->getTrait();
-        $trait->setExpectedInterfaces($this->getExpectedInterfacesFixture());
-        $this->assertTrue($trait->hasExpectedInterface(\Traversable::class));
-    }
-
-    public function testHasNot()
-    {
-        $trait = $this->getTrait();
-        $trait->setExpectedInterfaces($this->getExpectedInterfacesFixture());
-        $this->assertFalse($trait->hasExpectedInterface(ArrayCollectionInterface::class));
-    }
-
-    public function testHasNotWithObject()
-    {
-        $trait = $this->getTrait();
-        $trait->setExpectedInterfaces($this->getExpectedInterfacesFixture());
-        $this->assertFalse($trait->hasExpectedInterface($this));
     }
 
     public function testGetEmptyByDefault()
@@ -62,5 +43,56 @@ class ExpectedInterfaceTraitTest extends TestCase
         $trait = $this->getTrait();
         $trait->setExpectedInterfaces($expectedInterfaces);
         $this->assertEquals($expectedInterfaces, $trait->getExpectedInterfaces());
+    }
+
+    public function testHas()
+    {
+        $trait = $this->getTrait();
+        $trait->setExpectedInterfaces($this->getExpectedInterfacesFixture());
+        $this->assertTrue($trait->hasExpectedInterface(ArrayCollectionInterface::class));
+    }
+
+    public function testHasWithObject()
+    {
+        $trait = $this->getTrait();
+        $trait->setExpectedInterfaces($this->getExpectedInterfacesFixture());
+        $testClass = new class() implements ArrayCollectionInterface {
+            use CollectionTrait;
+
+            public function __construct(array $elements = [])
+            {
+                $this->saveElements($elements);
+            }
+        };
+        $this->assertTrue($trait->hasExpectedInterface($testClass));
+    }
+
+    public function testHasNot()
+    {
+        $trait = $this->getTrait();
+        $trait->setExpectedInterfaces($this->getExpectedInterfacesFixture());
+        $this->assertFalse($trait->hasExpectedInterface(TestCase::class));
+    }
+
+    public function testHasNotWithObject()
+    {
+        $trait = $this->getTrait();
+        $trait->setExpectedInterfaces($this->getExpectedInterfacesFixture());
+        $this->assertFalse($trait->hasExpectedInterface($this));
+    }
+
+    public function testAssertOk()
+    {
+        $trait = $this->getTrait();
+        $trait->setExpectedInterfaces($this->getExpectedInterfacesFixture());
+        $this->assertNull($trait->assertExpectedInterface(ArrayCollectionInterface::class));
+    }
+
+    /** @expectedException \JBJ\Workflow\Exception\FixMeException */
+    public function testAssertThrows()
+    {
+        $trait = $this->getTrait();
+        $trait->setExpectedInterfaces($this->getExpectedInterfacesFixture());
+        $this->assertNull($trait->assertExpectedInterface($this));
     }
 }

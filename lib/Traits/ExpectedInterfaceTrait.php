@@ -16,12 +16,13 @@ trait ExpectedInterfaceTrait
         $this->expectedInterfaces = $expectedInterfaces;
     }
 
-    protected function hasExpectedInterface($interface)
+    protected function hasExpectedInterface($interfaceorobject)
     {
-        if (!is_object($interface)) {
-            $expected = $this->getExpectedInterfaces();
-            return in_array($interface, $expected);
-        }
+        $classname =  is_object($interfaceorobject) ? get_class($interfaceorobject) : $interfaceorobject;
+        $interfaces = class_implements($classname);
+        $expectedInterfaces = $this->getExpectedInterfaces();
+        $diff = array_diff($expectedInterfaces, $interfaces);
+        return empty($diff);
     }
 
 
@@ -29,7 +30,7 @@ trait ExpectedInterfaceTrait
     {
         $hasInterface = $this->hasExpectedInterface($interface);
         if (!$hasInterface) {
-            throw new JBJ\Workflow\Exception\FixMeException('Invalid interface');
+            throw new \JBJ\Workflow\Exception\FixMeException('Invalid interface');
         }
     }
 }
