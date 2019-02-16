@@ -6,6 +6,7 @@ namespace JBJ\Workflow\Collection;
  * forked from doctrine/collections
  */
 
+use Doctrine\Common\Collections\ArrayCollection;
 use JBJ\Workflow\Traits\ElementNameTrait;
 use JBJ\Workflow\Traits\ElementParentTrait;
 use JBJ\Workflow\Exception\FixMeException;
@@ -23,7 +24,7 @@ trait GraphCollectionTrait
             }
         }
         if (!empty($throwThis)) {
-            throw new FixMeException(sprintf('Invalid element "%s". Expected methods missing "%s"', get_class($element), join(',', $throwThis)));
+            throw new FixMeException(sprintf('Invalid element "%s". Expected methods missing "%s"', $element, join(',', $throwThis)));
         }
     }
 
@@ -38,11 +39,11 @@ trait GraphCollectionTrait
         $this->assertValidElement($element);
         $newKey = $element->getName();
         if (is_string($key) && $key !== $newKey) {
-            throw new FixMeException(sprintf('Provided key "%s" must match $element->getName() "%s"', $key, $newKey));
+            throw new FixMeException(sprintf('Invalid key "%s", expecting "%s".', $key, $newKey));
         }
-        $element->setParent($this);
         $children = $this->getChildren();
         $children[$newKey] = $element;
+        $element->setParent($this);
     }
 
     /**

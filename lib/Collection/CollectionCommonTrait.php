@@ -48,12 +48,12 @@ trait CollectionCommonTrait
     {
         $children = $this->children;
         if (!$children instanceof ArrayCollection) {
-            $elements = is_array($children) ? $children : [];
+            $elements = $children;
             $children = new ArrayCollection();
-            foreach ($elements as $key => $element) {
-                $children[$key] = $element;
-            }
             $this->children = $children;
+            foreach ($elements as $key => $element) {
+                $this->set($key, $element);
+            }
         }
         return $children;
     }
