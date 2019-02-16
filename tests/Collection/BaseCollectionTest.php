@@ -35,21 +35,28 @@ abstract class BaseCollectionTest extends TestCase
         $this->testClassname = $testClassname;
     }
 
+    protected function getTraitNames($classorname)
+    {
+        $classname = is_object($classorname) ? get_class($classorname) : $classorname;
+        $rClass = new \ReflectionClass($classname);
+        $parents = [$rClass];
+        while ($parent = $rClass->getParentClass()) {
+            $parents[] = $parent;
+            $rClass = $parent;
+        }
+        $traitNames = [];
+        foreach ($parents as $rClass) {
+            $traitNames = array_merge($traitNames, $rClass->getTraitNames());
+        }
+        return $traitNames;
+    }
+
     private $isGraph; // don't use this directly
     protected function isGraph()
     {
         $isGraph = $this->isGraph;
         if (null === $isGraph) {
-            $rClass = new \ReflectionClass($this->getTestClassname());
-            $parents = [$rClass];
-            while ($parent = $rClass->getParentClass()) {
-                $parents[] = $parent;
-                $rClass = $parent;
-            }
-            $traitNames = [];
-            foreach ($parents as $rClass) {
-                $traitNames = array_merge($traitNames, $rClass->getTraitNames());
-            }
+            $traitNames = $this->getTraitNames($this->getTestClassname());
             $collectionTraits = [];
             foreach (['JBJ\Workflow\Collection\CollectionTrait', 'JBJ\Workflow\Collection\GraphCollectionTrait'] as $collectionTrait) {
                 if (in_array($collectionTrait, $traitNames, true)) {
