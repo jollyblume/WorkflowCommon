@@ -11,6 +11,9 @@ use JBJ\Workflow\Traits\ElementNameTrait;
 use JBJ\Workflow\Traits\ElementParentTrait;
 use JBJ\Workflow\Exception\FixMeException;
 
+/**
+ * GraphCollectionTrait
+ */
 trait GraphCollectionTrait
 {
     use CollectionCommonTrait, ElementNameTrait, ElementParentTrait;
@@ -24,7 +27,7 @@ trait GraphCollectionTrait
             }
         }
         if (!empty($throwThis)) {
-            throw new FixMeException(sprintf('Invalid element "%s". Expected methods missing "%s"', $element, join(',', $throwThis)));
+            throw new FixMeException(sprintf('Invalid element "%s". It is missing methods "%s"', $element, join(',', $throwThis)));
         }
     }
 
