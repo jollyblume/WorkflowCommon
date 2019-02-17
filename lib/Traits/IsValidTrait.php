@@ -8,7 +8,10 @@ trait IsValidTrait
     protected function isGraphValid()
     {
         $isValid = function ($key, $element) {
-            return $element->isValid();
+            if (is_object($element) && method_exists($element, 'isValid')) {
+                return $element->isValid();
+            }
+            return true;
         };
         return $this->forAll($isValid);
     }

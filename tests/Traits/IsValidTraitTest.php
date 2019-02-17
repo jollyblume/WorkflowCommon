@@ -5,6 +5,8 @@ namespace JBJ\Workflow\Tests\Traits;
 use JBJ\Workflow\Collection\ArrayCollectionInterface;
 use JBJ\Workflow\Collection\GraphCollectionTrait;
 use JBJ\Workflow\Traits\IsValidTrait;
+use JBJ\Workflow\Traits\ElementNameTrait;
+use JBJ\Workflow\Traits\ElementParentTrait;
 use PHPUnit\Framework\TestCase;
 
 class IsValidTraitTest extends TestCase
@@ -50,6 +52,7 @@ class IsValidTraitTest extends TestCase
         return $testClass;
     }
 
+    /** @SuppressWarnings(PHPMD) */
     protected function getTestClassFailOnSetter(string $name = 'fail-setter', bool $isValid = false)
     {
         $testClass = new class($name, $isValid) implements ArrayCollectionInterface {
@@ -94,6 +97,15 @@ class IsValidTraitTest extends TestCase
         $testClass[] = $this->getTestClassFailOnSetter();
         $this->assertFalse($testClass->isValid());
         $testClass['fail-setter']->setIsValid(true);
+        $this->assertTrue($testClass->isValid());
+        $this->testClass['no-isValid-method'] = new class('mock') {
+            use ElementNameTrait, ElementParentTrait;
+
+            public function __construct(string $name)
+            {
+                $this->setName($name);
+            }
+        };
         $this->assertTrue($testClass->isValid());
     }
 
