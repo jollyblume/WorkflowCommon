@@ -23,7 +23,7 @@ trait CollectionCommonTrait
      *
      * @var ArrayCollection $children
      */
-    private $children;
+    private $children = [];
 
     /**
      * Save the children :)
