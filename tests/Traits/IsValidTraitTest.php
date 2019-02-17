@@ -19,15 +19,15 @@ class IsValidTraitTest extends TestCase
                 $this->setName($name);
             }
 
-            protected function isCollectionValid()
+            public function isCollectionValid()
             {
-                return !$this->empty;
+                return !$this->isEmpty();
             }
         };
         return $testClass;
     }
 
-    protected function getTestClassWithFailOnEmptyFailOnMissingChildren(string $name = 'fail-on-missing-children')
+    protected function getTestClassWithFailOnMissingChildren(string $name = 'fail-on-missing-children')
     {
         $testClass = new class($name) implements ArrayCollectionInterface {
             use GraphCollectionTrait, IsValidTrait;
@@ -37,7 +37,7 @@ class IsValidTraitTest extends TestCase
                 $this->setName($name);
             }
 
-            protected function isCollectionValid()
+            public function isCollectionValid()
             {
                 foreach (['froms', 'tos'] as $requiredChild) {
                     if (!$this->containsKey($requiredChild)) {
@@ -50,14 +50,15 @@ class IsValidTraitTest extends TestCase
         return $testClass;
     }
 
-    protected function getTestClassFailOnSetter(string $name = 'fail-setter')
+    protected function getTestClassFailOnSetter(string $name = 'fail-setter', bool $isValid = false)
     {
-        $testClass = new class($name) implements ArrayCollectionInterface {
+        $testClass = new class($name, $isValid) implements ArrayCollectionInterface {
             use GraphCollectionTrait, IsValidTrait;
 
-            public function __construct($name)
+            public function __construct($name, bool $isValid = false)
             {
                 $this->setName($name);
+                $this->setIsValid($isValid);
             }
 
             private $isValid = false;
@@ -65,7 +66,7 @@ class IsValidTraitTest extends TestCase
             {
                 $this->isValid = $isValid;
             }
-            protected function isCollectionValid()
+            public function isCollectionValid()
             {
                 return $this->isValid;
             }
@@ -89,6 +90,35 @@ class IsValidTraitTest extends TestCase
     public function testDefault()
     {
         $testClass = $this->getTestClass();
+        $this->assertTrue($testClass->isValid());
+        $testClass[] = $this->getTestClassFailOnSetter();
+        $this->assertFalse($testClass->isValid());
+        $testClass['fail-setter']->setIsValid(true);
+        $this->assertTrue($testClass->isValid());
+    }
+
+    public function testEmptyChild()
+    {
+        $testClass = $this->getTestClass();
+        $testClass[] = $this->getTestClassWithFailOnEmpty();
+        $this->assertTrue($testClass['fail-on-empty']->isEmpty());
+        $this->assertFalse($testClass['fail-on-empty']->isCollectionValid());
+        $this->assertFalse($testClass->isValid());
+        $testClass['fail-on-empty'][] = $this->getTestClassFailOnSetter('fail-setter', true);
+        $this->assertTrue($testClass['fail-on-empty']['fail-setter']->isCollectionValid());
+        $this->assertTrue($testClass->isValid());
+    }
+
+    public function testRequiredChildren()
+    {
+        $testClass = $this->getTestClass();
+        $testClass[] = $this->getTestClassWithFailOnMissingChildren();
+        $this->assertTrue($testClass['fail-on-missing-children']->isEmpty());
+        $this->assertFalse($testClass['fail-on-missing-children']->isCollectionValid());
+        $this->assertFalse($testClass->isValid());
+        $testClass['fail-on-missing-children'][] = $this->getTestClassFailOnSetter('froms', true);
+        $this->assertFalse($testClass->isValid());
+        $testClass['fail-on-missing-children'][] = $this->getTestClassFailOnSetter('tos', true);
         $this->assertTrue($testClass->isValid());
     }
 }
