@@ -20,12 +20,15 @@ trait GraphCollectionTrait
 
     public function __clone()
     {
-        if (method_exists('setParent')) {
-            $this->setParent(null);
-        }
+        $this->setParent(null);
         $children = new ArrayCollection($this->$children->toArray());
         foreach ($children as $key => $value) {
             $children[$key] = clone $value;
+            if (!method_exists($value, 'setParent')) {
+                // Can't be sure $value is no longer connected to previous parent
+                throw new \JBJ\Workflow\Exception\FixMeException(sprintf('PANIC: unable to setParent() for "%s"', $key));
+            }
+            $children[$key]->setParent($this);
         }
     }
 

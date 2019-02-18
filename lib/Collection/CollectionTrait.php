@@ -30,7 +30,7 @@ trait CollectionTrait
 
     public function __clone()
     {
-        if (method_exists('setParent')) {
+        if (method_exists($this, 'setParent')) {
             $this->setParent(null);
         }
         $children = new ArrayCollection($this->$children->toArray());
