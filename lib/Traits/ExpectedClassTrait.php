@@ -16,7 +16,7 @@ trait ExpectedClassTrait
         $this->expectedClasses = $expectedClasses;
     }
 
-    protected function hasExpectedClasses($object)
+    public function hasExpectedClasses($object)
     {
         $expectedClasses = $this->getExpectedClasses();
         $missedClasses = [];
