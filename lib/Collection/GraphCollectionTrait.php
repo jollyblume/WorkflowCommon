@@ -18,6 +18,17 @@ trait GraphCollectionTrait
 {
     use CollectionCommonTrait, ElementNameTrait, ElementParentTrait;
 
+    public function __clone()
+    {
+        if (method_exists('setParent')) {
+            $this->setParent(null);
+        }
+        $children = new ArrayCollection($this->$children->toArray());
+        foreach ($children as $key => $value) {
+            $children[$key] = clone $value;
+        }
+    }
+
     protected function assertValidElement($element)
     {
         $throwThis = [];

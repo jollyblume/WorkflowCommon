@@ -28,6 +28,14 @@ trait CollectionTrait
 {
     use CollectionCommonTrait;
 
+    public function __clone()
+    {
+        if (method_exists('setParent')) {
+            $this->setParent(null);
+        }
+        $children = new ArrayCollection($this->$children->toArray());
+    }
+
     /**
      * {@inheritdoc}
      */
