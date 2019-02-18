@@ -1,12 +1,13 @@
 <?php
 
-namespace JBJ\Workflow\Tests\Collection;
+namespace JBJ\Workflow\Tests\Collection\Reference;
 
-use JBJ\Workflow\Collection\ArrayCollectionInterface;
-use JBJ\Workflow\Collection\ComposedCollection;
+use JBJ\Workflow\Tests\Collection\BaseCollectionTest;
+use JBJ\Workflow\Collection\Reference\ComposedCollection;
 
 class ComposedCollectionTest extends BaseCollectionTest
 {
+    /** @SuppressWarnings(PHPMD) */
     protected function createCollection(string $name, array $elements = [])
     {
         $collection = new ComposedCollection($elements);

@@ -1,6 +1,9 @@
 <?php
 
-namespace JBJ\Workflow\Collection;
+namespace JBJ\Workflow\Collection\Reference;
+
+use JBJ\Workflow\Collection\ArrayCollectionInterface;
+use JBJ\Workflow\Collection\CollectionTrait;
 
 /**
  * ComposedCollection

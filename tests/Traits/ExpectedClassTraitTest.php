@@ -15,7 +15,6 @@ class ExpectedClassTraitTest extends TestCase
             use ExpectedClassTrait {
                 getExpectedClasses as public;
                 setExpectedClasses as public;
-                hasExpectedClasses as public;
                 assertExpectedClasses as public;
             }
         };

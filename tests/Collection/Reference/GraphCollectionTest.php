@@ -1,9 +1,9 @@
 <?php
 
-namespace JBJ\Workflow\Tests\Collection;
+namespace JBJ\Workflow\Tests\Collection\Reference;
 
-use JBJ\Workflow\Collection\ArrayCollectionInterface;
-use JBJ\Workflow\Collection\GraphCollection;
+use JBJ\Workflow\Tests\Collection\BaseCollectionTest;
+use JBJ\Workflow\Collection\Reference\GraphCollection;
 
 class GraphCollectionTest extends BaseCollectionTest
 {
