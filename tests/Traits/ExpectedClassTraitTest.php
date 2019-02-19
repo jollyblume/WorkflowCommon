@@ -86,46 +86,35 @@ class ExpectedClassTraitTest extends TestCase
         $this->assertArrayHasKey('child1', $collection);
     }
 
-    // public function testSet()
-    // {
-    //     $expectedClasses = $this->getExpectedClassFixture();
-    //     $trait = $this->getTrait();
-    //     $trait->setExpectedClasses($expectedClasses);
-    //     $this->assertEquals($expectedClasses, $trait->getExpectedClasses());
-    // }
-    //
-    // public function testHas()
-    // {
-    //     $expectedClasses = $this->getExpectedClassFixture();
-    //     $trait = $this->getTrait();
-    //     $trait->setExpectedClasses($expectedClasses);
-    //     $testClass = $this->getTestClass();
-    //     $this->assertTrue($trait->hasExpectedClasses($testClass));
-    // }
-    //
-    // public function testHasNot()
-    // {
-    //     $expectedClasses = $this->getExpectedClassFixture();
-    //     $trait = $this->getTrait();
-    //     $trait->setExpectedClasses($expectedClasses);
-    //     $this->assertFalse($trait->hasExpectedClasses($this));
-    // }
-    //
-    // public function testAssertOk()
-    // {
-    //     $expectedClasses = $this->getExpectedClassFixture();
-    //     $trait = $this->getTrait();
-    //     $trait->setExpectedClasses($expectedClasses);
-    //     $testClass = $this->getTestClass();
-    //     $this->assertNull($trait->assertExpectedClasses($testClass));
-    // }
-    //
-    // /** @expectedException \JBJ\Workflow\Exception\FixMeException */
-    // public function testAssertThrows()
-    // {
-    //     $expectedClasses = $this->getExpectedClassFixture();
-    //     $trait = $this->getTrait();
-    //     $trait->setExpectedClasses($expectedClasses);
-    //     $this->assertNull($trait->assertExpectedClasses($this));
-    // }
+    /** @expectedException \JBJ\Workflow\Exception\FixMeException */
+    public function testGetSetThrowsUnexpectedClass()
+    {
+        $collection = $this->getCollection('test');
+        $child = $this->getAcceptableChild('child1');
+        $child2 = $this->getDifferentChild('child2');
+        $collection->setExpectedClasses([get_class($child2)]);
+        $this->assertTrue($collection->hasExpectedClasses($child2));
+        $this->assertFalse($collection->hasExpectedClasses($child));
+        $collection[] = $child;
+    }
+
+    public function testAssertOk()
+    {
+        $collection = $this->getCollection('test');
+        $child = $this->getAcceptableChild('child1');
+        $collection->setExpectedClasses([get_class($child)]);
+        $collection->assertExpectedClasses($child);
+        $collection[] = $child;
+        $this->assertArrayHasKey('child1', $collection);
+    }
+
+    /** @expectedException \JBJ\Workflow\Exception\FixMeException */
+    public function testAssertThrows()
+    {
+        $collection = $this->getCollection('test');
+        $child = $this->getAcceptableChild('child1');
+        $collection->setExpectedClasses([get_class($child)]);
+        $child2 = $this->getDifferentChild('child2');
+        $collection->assertExpectedClasses($child2);
+    }
 }
