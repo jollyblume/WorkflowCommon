@@ -11,9 +11,9 @@ trait ExpectedClassTrait
         return $this->expectedClasses;
     }
 
-    protected function setExpectedClasses(array $expectedClasses)
+    protected function setExpectedClasses($expectedClasses)
     {
-        $this->expectedClasses = $expectedClasses;
+        $this->expectedClasses = (array) $expectedClasses;
     }
 
     public function hasExpectedClasses($object)
