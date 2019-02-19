@@ -20,7 +20,7 @@ use JBJ\Workflow\Traits\IsValidTrait;
 trait CollectionCommonTrait
 {
     use IsValidTrait;
-    
+
     /**
      * Composed collection
      *

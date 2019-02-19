@@ -21,8 +21,9 @@ trait GraphCollectionTrait
     public function __clone()
     {
         $this->setParent(null);
-        $children = new ArrayCollection($this->$children->toArray());
-        foreach ($children as $key => $value) {
+        $children = $this->getChildren();
+        $children = new ArrayCollection($children->toArray());
+        foreach ($children as $key => &$value) {
             $children[$key] = clone $value;
             if (!method_exists($value, 'setParent')) {
                 // Can't be sure $value is no longer connected to previous parent

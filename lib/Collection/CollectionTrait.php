@@ -33,7 +33,8 @@ trait CollectionTrait
         if (method_exists($this, 'setParent')) {
             $this->setParent(null);
         }
-        $children = new ArrayCollection($this->$children->toArray());
+        $children = $this->getChildren();
+        $children = new ArrayCollection($children->toArray());
     }
 
     /**
