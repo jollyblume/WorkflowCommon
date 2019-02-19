@@ -19,6 +19,10 @@ trait ExpectedClassTrait
     public function hasExpectedClasses($object)
     {
         $expectedClasses = $this->getExpectedClasses();
+        if (empty($expectedClasses)) {
+            //todo exception?
+            return true;
+        }
         $missedClasses = [];
         foreach ($expectedClasses as $classname) {
             if (!is_subclass_of($object, $classname)) {
@@ -32,7 +36,7 @@ trait ExpectedClassTrait
     {
         $has = $this->hasExpectedClasses($object);
         if (!$has) {
-            throw new \JBJ\Workflow\Exception\FixMeException('Invalid object');
+            throw new \JBJ\Workflow\Exception\FixMeException(sprintf('Invalid object "%s"', get_class($object)));
         }
     }
 }
