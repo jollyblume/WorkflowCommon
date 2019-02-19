@@ -8,7 +8,7 @@ use JBJ\Workflow\Traits\ElementParentTrait;
 /**
  * NamedCollectionTrait
  *
- * Creates a collection that can can a graph leaf node
+ * Creates a collection that can be a graph leaf node
  */
 trait NamedCollectionTrait
 {
