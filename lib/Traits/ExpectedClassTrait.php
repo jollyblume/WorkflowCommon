@@ -20,12 +20,11 @@ trait ExpectedClassTrait
     {
         $expectedClasses = $this->getExpectedClasses();
         if (empty($expectedClasses)) {
-            //todo exception?
             return true;
         }
         $missedClasses = [];
         foreach ($expectedClasses as $classname) {
-            if (!is_subclass_of($object, $classname)) {
+            if (!$object instanceof $classname) {
                 $missedClasses[] = $classname;
             }
         }
