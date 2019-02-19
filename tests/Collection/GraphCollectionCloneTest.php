@@ -9,11 +9,11 @@ use PHPUnit\Framework\TestCase;
 
 class GraphCollectionCloneTest extends TestCase
 {
-    protected function createGraphCollection(string $name = '', array $elements = [])
+    protected function createGraphCollection(string $name, array $elements = [])
     {
         $graphCollection = new class($name, $elements) implements ArrayCollectionInterface {
             use GraphCollectionTrait;
-            public function __construct(string $name = '', array $elements = [])
+            public function __construct(string $name, array $elements = [])
             {
                 $this->setName($name);
                 $this->saveElements($elements);
