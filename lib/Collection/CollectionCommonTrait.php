@@ -9,7 +9,6 @@ namespace JBJ\Workflow\Collection;
 use Closure;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Criteria;
-use JBJ\Workflow\Traits\IsValidTrait;
 
 /**
  * CollectionCommonTrait
@@ -19,8 +18,6 @@ use JBJ\Workflow\Traits\IsValidTrait;
  */
 trait CollectionCommonTrait
 {
-    use IsValidTrait;
-
     /**
      * Composed collection
      *
