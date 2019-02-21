@@ -4,7 +4,13 @@ namespace JBJ\Workflow\Tests\Collection;
 
 use Closure;
 use Doctrine\Common\Collections\Criteria;
-use JBJ\Workflow\Collection\CollectionCommonTrait;
+use JBJ\Workflow\NodeInterface;
+use JBJ\Workflow\NodeCollectionInterface;
+use JBJ\Workflow\NamedCollectionInterface;
+use JBJ\Workflow\ArrayCollectionInterface;
+use JBJ\Workflow\Collection\NodeCollectionTrait;
+use JBJ\Workflow\Collection\NamedCollectionTrait;
+use JBJ\Workflow\Collection\CollectionTrait;
 use Ramsey\Uuid\Uuid;
 use PHPUnit\Framework\TestCase;
 
@@ -50,22 +56,49 @@ abstract class BaseCollectionTest extends TestCase
         return $traitNames;
     }
 
-    private $isGraph; // don't use this directly
-    protected function isGraph()
+    protected function hasTrait(string $class, string $trait)
     {
-        $isGraph = $this->isGraph;
-        if (null === $isGraph) {
-            $traitNames = $this->getTraitNames($this->getTestClassname());
-            $collectionTraits = [];
-            foreach (['JBJ\Workflow\Collection\CollectionTrait', 'JBJ\Workflow\Collection\NodeCollectionTrait'] as $collectionTrait) {
-                if (in_array($collectionTrait, $traitNames, true)) {
-                    $collectionTraits[] = $collectionTrait;
-                }
-            }
-            $isGraph = !empty($collectionTraits) && $collectionTraits[0] === 'JBJ\Workflow\Collection\NodeCollectionTrait';
-            $this->isGraph = $isGraph;
-        }
-        return $isGraph;
+        $traitNames = $this->getTraitNames($class);
+        return in_array($trait, $traitNames, true);
+    }
+
+    protected function isNodeCollection()
+    {
+        return $this->getTestClassname() instanceof NodeCollectionInterface;
+    }
+
+    protected function isNamedCollection()
+    {
+        return $this->getTestClassname() instanceof NamedCollectionInterface;
+    }
+
+    protected function isCollection()
+    {
+        return $this->getTestClassname() instanceof ArrayCollectionInterface;
+    }
+
+    /** @group init */
+    public function testIsNodeCollection()
+    {
+        $isNode = $this->isNodeCollection();
+        $hasTrait = $this->hasTrait($this->getTestClassname, NodeCollectionTrait::class);
+        $this->assertEquals($isNode, $hasTrait);
+    }
+
+    /** @group init */
+    public function testIsNamedCollection()
+    {
+        $isNamed = $this->isNamedCollection();
+        $hasTrait = $this->hasTrait($this->getTestClassname, NamedCollectionTrait::class);
+        $this->assertEquals($isNamed, $hasTrait);
+    }
+
+    /** @group init */
+    public function testIsCollection()
+    {
+        $isCollection = $this->isCollection();
+        $hasTrait = $this->hasTrait($this->getTestClassname, CollectionTrait::class);
+        $this->assertEquals($isCollection, $hasTrait);
     }
 
     protected function getDoctrineTestData()
@@ -77,7 +110,7 @@ abstract class BaseCollectionTest extends TestCase
         ];
     }
 
-    protected function getGraphCompatibleData()
+    protected function getNodeCompatibleData()
     {
         return [
             'indexed-graph' => [
@@ -101,6 +134,75 @@ abstract class BaseCollectionTest extends TestCase
                 $this->createAcceptableElement('test.id.8'),
                 ],
         ];
+    }
+
+    protected function createNodeCollectionElement()
+    {
+        $element = new class() implements NodeCollectionInterface {
+            use NodeCollectionTrait;
+        };
+        return $element;
+    }
+
+    /** @group init */
+    public function testCreateNodeCollectionElement()
+    {
+        $element = $this->createNodeCollectioneElement('node-collection.element');
+        $this->assertInstanceOf(NodeCollectionInterface::class, $element);
+        $this->assertInstanceOf(NodeInterface::class, $element);
+        $this->assertTrue(method_exists($element, 'getOtherValue'));
+        $this->assertTrue(method_exists($element, 'setOtherValue'));
+    }
+
+    protected function createNameCollectionElement()
+    {
+        $element = new class() implements NodeCollectionInterface {
+            use NamedCollectionTrait;
+            public function getOtherValue()
+            {
+                return $this->otherValue;
+            }
+            public function setOtherValue($otherValue)
+            {
+                $this->otherValue = $otherValue;
+            }
+        };
+        return $element;
+    }
+
+    /** @group init */
+    public function testCreateNamedCollectionElement()
+    {
+        $element = $this->createNamedCollectionElement('named-collection.element');
+        $this->assertInstanceOf(ArrayCollectionInterface::class, $element);
+        $this->assertInstanceOf(NodeInterface::class, $element);
+        $this->assertTrue(method_exists($element, 'getOtherValue'));
+        $this->assertTrue(method_exists($element, 'setOtherValue'));
+    }
+
+    protected function createCollectionElement()
+    {
+        $element = new class() implements ArrayCollectionInterface {
+            use CollectionTrait;
+            public function getOtherValue()
+            {
+                return $this->otherValue;
+            }
+            public function setOtherValue($otherValue)
+            {
+                $this->otherValue = $otherValue;
+            }
+        };
+        return $element;
+    }
+
+    /** @group init */
+    public function testCreateCollectionElement()
+    {
+        $element = $this->createCollectionElement('collection.element');
+        $this->assertInstanceOf(ArrayCollectionInterface::class, $element);
+        $this->assertTrue(method_exists($element, 'getOtherValue'));
+        $this->assertTrue(method_exists($element, 'setOtherValue'));
     }
 
     protected function createAcceptableElement(string $key)
@@ -134,18 +236,25 @@ abstract class BaseCollectionTest extends TestCase
             {
                 $this->otherValue = $otherValue;
             }
-            public function __toString()
-            {
-                return $this->getName();
-            }
         };
         return $element;
     }
 
+    /** @group init */
+    public function testCreateAcceptableElement()
+    {
+        $element = $this->createAcceptableElement('acceptable.element');
+        $this->assertTrue(method_exists($element, 'getName'));
+        $this->assertTrue(method_exists($element, 'getParent'));
+        $this->assertTrue(method_exists($element, 'setParent'));
+        $this->assertTrue(method_exists($element, 'getOtherValue'));
+        $this->assertTrue(method_exists($element, 'setOtherValue'));
+    }
+
     protected function hydrateElementKeys($elements)
     {
-        if (!$this->isGraph() || empty($elements)) {
-            return is_array($elements) ? $elements : [];
+        if (!$this->isNodeCollection() || empty($elements)) {
+            return (array) $elements;
         }
         $hydrated = [];
         foreach ($elements as $key => $element) {
@@ -155,6 +264,25 @@ abstract class BaseCollectionTest extends TestCase
         return $hydrated;
     }
 
+
+    /** * @group init * @depends testGraphDataProvider */
+    public function testHydrateElementKeys($providerData)
+    {
+        $elements = $this->getNextDataset(__FUNCTION__, $providerData);
+        if (null === $elements) {
+            return;
+        }
+        if (array_key_exists('__DATASETINDEX__', $elements)) {
+            $datasetIndex = $elements['__DATASETINDEX__'];
+            unset($elements['__DATASETINDEX__']);
+        }
+
+        // actual test follows:
+        $collection = $this->createCollection($datasetIndex, $elements);
+        $expectedElements = $this->hydrateElementKeys($elements);
+        $this->assertEquals($expectedElements, $collection->toArray());
+    }
+
     protected function buildSimpleDataProvider()
     {
         $providers = $this->getDoctrineTestData();
@@ -162,9 +290,9 @@ abstract class BaseCollectionTest extends TestCase
         return $providers;
     }
 
-    protected function buildGraphDataProvider()
+    protected function buildNodeDataProvider()
     {
-        $providers = $this->getGraphCompatibleData();
+        $providers = $this->getNodeCompatibleData();
         $providers['__DATAPROVIDER__'] = 'graph';
         return $providers;
     }
@@ -172,8 +300,8 @@ abstract class BaseCollectionTest extends TestCase
     protected function buildCompleteDataProvider()
     {
         $doctrineTestData = $this->getDoctrineTestData();
-        $graphTestData = $this->getGraphCompatibleData();
-        $providers = array_merge($doctrineTestData, $graphTestData);
+        $nodeTestData = $this->getNodeCompatibleData();
+        $providers = array_merge($doctrineTestData, $nodeTestData);
         $providers['__DATAPROVIDER__'] = 'complete';
         return $providers;
     }
@@ -196,19 +324,7 @@ abstract class BaseCollectionTest extends TestCase
         throw new \Exception('Unknown providerData');
     }
 
-    public function testCreateAcceptableElement()
-    {
-        $element = $this->createAcceptableElement('test.element');
-        if (!empty($this->getTestClassname()) && $this->isGraph()) {
-            $this->assertTrue(method_exists($element, 'getName'));
-            $this->assertTrue(method_exists($element, 'getParent'));
-            $this->assertTrue(method_exists($element, 'setParent'));
-        }
-        $this->assertTrue(method_exists($element, 'getOtherValue'));
-        $this->assertTrue(method_exists($element, 'setOtherValue'));
-        $this->assertTrue(method_exists($element, '__toString'));
-    }
-
+    /** @group init */
     public function testCreateCollection()
     {
         $elements = [
@@ -217,9 +333,11 @@ abstract class BaseCollectionTest extends TestCase
             $this->createAcceptableElement('test.element.3'),
         ];
         $collection = $this->createCollection('test.collection', $elements);
+        $this->assertInstanceOf(ArrayCollectionInterface::class, $collection);
         $this->setTestClassname($collection);
         $expectedElements = $elements;
         if ($this->isGraph()) {
+            $this->assertInstanceOf(NodeCollectionInterface::class, $collection);
             $expectedElements = [
                 'test.element.1' => $elements[0],
                 'test.element.2' => $elements[1],
@@ -229,7 +347,7 @@ abstract class BaseCollectionTest extends TestCase
         $this->assertEquals($expectedElements, $collection->toArray());
     }
 
-    /** This is the simple data provider */
+    /** * @group init * This is the simple data provider */
     public function testSimpleDataProvider()
     {
         $providerData = $this->buildSimpleDataProvider();
@@ -237,7 +355,7 @@ abstract class BaseCollectionTest extends TestCase
         return $providerData;
     }
 
-    /** This is the graph data provider */
+    /** * @group init * This is the graph data provider */
     public function testGraphDataProvider()
     {
         $providerData = $this->buildGraphDataProvider();
@@ -245,7 +363,7 @@ abstract class BaseCollectionTest extends TestCase
         return $providerData;
     }
 
-    /** This is the complete data provider */
+    /** * @group init * This is the complete data provider */
     public function testCompleteDataProvider()
     {
         $providerData = $this->buildCompleteDataProvider();
@@ -253,7 +371,7 @@ abstract class BaseCollectionTest extends TestCase
         return $providerData;
     }
 
-    /** This is the context data provider */
+    /** * @group init * This is the context data provider */
     public function testContextDataProvider()
     {
         if ($this->isGraph()) {
@@ -265,24 +383,6 @@ abstract class BaseCollectionTest extends TestCase
             $this->assertEquals('complete', $providerData['__DATAPROVIDER__']);
         }
         return $providerData;
-    }
-
-    /** @depends testGraphDataProvider */
-    public function testHydrateElements($providerData)
-    {
-        $elements = $this->getNextDataset(__FUNCTION__, $providerData);
-        if (null === $elements) {
-            return;
-        }
-        if (array_key_exists('__DATASETINDEX__', $elements)) {
-            $datasetIndex = $elements['__DATASETINDEX__'];
-            unset($elements['__DATASETINDEX__']);
-        }
-
-        // actual test follows:
-        $collection = $this->createCollection($datasetIndex, $elements);
-        $expectedElements = $this->hydrateElementKeys($elements);
-        $this->assertEquals($expectedElements, $collection->toArray());
     }
 
     /*********************** ArrayCollection Tests below *********************/
