@@ -2,7 +2,7 @@
 
 namespace JBJ\Workflow\Collection\Reference;
 
-use JBJ\Workflow\NodeInterface;
+use JBJ\Workflow\NodeCollectionInterface;
 use JBJ\Workflow\Collection\GraphCollectionTrait;
 use JBJ\Workflow\Traits\CreateIdTrait;
 
@@ -11,7 +11,7 @@ use JBJ\Workflow\Traits\CreateIdTrait;
  *
  * This is a reference implementation for classes using GraphCollectionTrait
  */
-class UuidNamedGraphCollection implements NodeInterface
+class UuidNamedGraphCollection implements NodeCollectionInterface
 {
     use GraphCollectionTrait, CreateIdTrait;
 

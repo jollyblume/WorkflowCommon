@@ -1,6 +1,6 @@
 <?php
 
-namespace JBJ\Workflow\Collection;
+namespace JBJ\Workflow;
 
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\Selectable;
