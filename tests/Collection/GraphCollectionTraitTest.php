@@ -5,15 +5,15 @@ namespace JBJ\Workflow\Tests\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
 use JBJ\Workflow\NodeCollectionInterface;
 use JBJ\Workflow\Collection\CollectionTrait;
-use JBJ\Workflow\Collection\GraphCollectionTrait;
+use JBJ\Workflow\Collection\NodeCollectionTrait;
 use PHPUnit\Framework\TestCase;
 
-class GraphCollectionTraitTest extends BaseCollectionTest
+class NodeCollectionTraitTest extends BaseCollectionTest
 {
     protected function createCollection(string $name, array $elements = [])
     {
         $collection = new class($name, $elements) implements NodeCollectionInterface {
-            use GraphCollectionTrait {
+            use NodeCollectionTrait {
                 saveElements as public;
                 getChildren as public;
             }
@@ -65,7 +65,7 @@ class GraphCollectionTraitTest extends BaseCollectionTest
     protected function createGraphCollection()
     {
         $collection = new class() {
-            use GraphCollectionTrait;
+            use NodeCollectionTrait;
         };
         return $collection;
     }

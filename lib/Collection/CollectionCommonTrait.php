@@ -14,7 +14,7 @@ use Doctrine\Common\Collections\Criteria;
  * CollectionCommonTrait
  *
  * Implements common methods from Doctrine's ArrayCollection class, used by
- * CollectionTrait and GraphCollectionTrait.
+ * CollectionTrait and NodeCollectionTrait.
  */
 trait CollectionCommonTrait
 {

@@ -4,7 +4,7 @@ namespace JBJ\Workflow\Tests\Traits;
 
 use JBJ\Workflow\NodeCollectionInterface;
 use JBJ\Workflow\Collection\NamedCollectionTrait;
-use JBJ\Workflow\Collection\GraphCollectionTrait;
+use JBJ\Workflow\Collection\NodeCollectionTrait;
 use JBJ\Workflow\Traits\ExpectedClassTrait;
 use PHPUnit\Framework\TestCase;
 
@@ -13,7 +13,7 @@ class ExpectedClassTraitTest extends TestCase
     protected function getCollection(string $name, array $elements = [])
     {
         $collection = new class($name, $elements) implements NodeCollectionInterface {
-            use GraphCollectionTrait {
+            use NodeCollectionTrait {
                 set as innerSet;
             }
             use ExpectedClassTrait {

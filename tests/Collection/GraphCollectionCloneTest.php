@@ -4,7 +4,7 @@ namespace JBJ\Workflow\Tests\Collection;
 
 use JBJ\Workflow\NodeCollectionInterface;
 use JBJ\Workflow\Collection\NamedCollectionTrait;
-use JBJ\Workflow\Collection\GraphCollectionTrait;
+use JBJ\Workflow\Collection\NodeCollectionTrait;
 use PHPUnit\Framework\TestCase;
 
 class GraphCollectionCloneTest extends TestCase
@@ -12,7 +12,7 @@ class GraphCollectionCloneTest extends TestCase
     protected function createGraphCollection(string $name, array $elements = [])
     {
         $graphCollection = new class($name, $elements) implements NodeCollectionInterface {
-            use GraphCollectionTrait;
+            use NodeCollectionTrait;
             public function __construct(string $name, array $elements = [])
             {
                 $this->setName($name);

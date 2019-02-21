@@ -6,7 +6,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use JBJ\Workflow\ArrayCollectionInterface;
 use JBJ\Workflow\Collection\CollectionCommonTrait;
 use JBJ\Workflow\Collection\CollectionTrait;
-use JBJ\Workflow\Collection\GraphCollectionTrait;
+use JBJ\Workflow\Collection\NodeCollectionTrait;
 use PHPUnit\Framework\TestCase;
 
 class CollectionCommonTraitTest extends BaseCollectionTest
@@ -86,7 +86,7 @@ class CollectionCommonTraitTest extends BaseCollectionTest
     protected function createGraphCollection()
     {
         $collection = new class() {
-            use GraphCollectionTrait;
+            use NodeCollectionTrait;
         };
         return $collection;
     }

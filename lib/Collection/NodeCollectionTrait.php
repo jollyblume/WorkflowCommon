@@ -12,9 +12,9 @@ use JBJ\Workflow\Traits\ElementParentTrait;
 use JBJ\Workflow\Exception\FixMeException;
 
 /**
- * GraphCollectionTrait
+ * NodeCollectionTrait
  */
-trait GraphCollectionTrait
+trait NodeCollectionTrait
 {
     use CollectionCommonTrait, ElementNameTrait, ElementParentTrait;
 

@@ -57,12 +57,12 @@ abstract class BaseCollectionTest extends TestCase
         if (null === $isGraph) {
             $traitNames = $this->getTraitNames($this->getTestClassname());
             $collectionTraits = [];
-            foreach (['JBJ\Workflow\Collection\CollectionTrait', 'JBJ\Workflow\Collection\GraphCollectionTrait'] as $collectionTrait) {
+            foreach (['JBJ\Workflow\Collection\CollectionTrait', 'JBJ\Workflow\Collection\NodeCollectionTrait'] as $collectionTrait) {
                 if (in_array($collectionTrait, $traitNames, true)) {
                     $collectionTraits[] = $collectionTrait;
                 }
             }
-            $isGraph = !empty($collectionTraits) && $collectionTraits[0] === 'JBJ\Workflow\Collection\GraphCollectionTrait';
+            $isGraph = !empty($collectionTraits) && $collectionTraits[0] === 'JBJ\Workflow\Collection\NodeCollectionTrait';
             $this->isGraph = $isGraph;
         }
         return $isGraph;

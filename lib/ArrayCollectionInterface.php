@@ -11,7 +11,7 @@ use Doctrine\Common\Collections\Selectable;
  * ArrayCollectionInterface extends the doctrine/collections interfaces
  * implemented by ArrayCollection.
  *
- * Classes using CollectionTrait or GraphCollectionTrait implement this interface.
+ * Classes using CollectionTrait or NodeCollectionTrait implement this interface.
  */
 interface ArrayCollectionInterface extends Collection, Selectable
 {

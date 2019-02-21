@@ -3,7 +3,7 @@
 namespace JBJ\Workflow\Tests\Traits;
 
 use JBJ\Workflow\NodeCollectionInterface;
-use JBJ\Workflow\Collection\GraphCollectionTrait;
+use JBJ\Workflow\Collection\NodeCollectionTrait;
 use JBJ\Workflow\Traits\ElementNameTrait;
 use JBJ\Workflow\Traits\ElementParentTrait;
 use JBJ\Workflow\Traits\IsValidTrait;
@@ -14,7 +14,7 @@ class IsValidTraitTest extends TestCase
     protected function getTestClassWithFailOnEmpty(string $name = 'fail-on-empty')
     {
         $testClass = new class($name) implements NodeCollectionInterface {
-            use GraphCollectionTrait, IsValidTrait;
+            use NodeCollectionTrait, IsValidTrait;
 
             public function __construct($name)
             {
@@ -32,7 +32,7 @@ class IsValidTraitTest extends TestCase
     protected function getTestClassWithFailOnMissingChildren(string $name = 'fail-on-missing-children')
     {
         $testClass = new class($name) implements NodeCollectionInterface {
-            use GraphCollectionTrait, IsValidTrait;
+            use NodeCollectionTrait, IsValidTrait;
 
             public function __construct($name)
             {
@@ -56,7 +56,7 @@ class IsValidTraitTest extends TestCase
     protected function getTestClassFailOnSetter(string $name = 'fail-setter', bool $isValid = false)
     {
         $testClass = new class($name, $isValid) implements NodeCollectionInterface {
-            use GraphCollectionTrait, IsValidTrait;
+            use NodeCollectionTrait, IsValidTrait;
 
             public function __construct($name, bool $isValid = false)
             {
@@ -80,7 +80,7 @@ class IsValidTraitTest extends TestCase
     protected function getTestClass()
     {
         $testClass = new class() implements NodeCollectionInterface {
-            use GraphCollectionTrait, IsValidTrait;
+            use NodeCollectionTrait, IsValidTrait;
 
             public function __construct()
             {

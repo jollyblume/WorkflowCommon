@@ -3,16 +3,16 @@
 namespace JBJ\Workflow\Collection\Reference;
 
 use JBJ\Workflow\NodeCollectionInterface;
-use JBJ\Workflow\Collection\GraphCollectionTrait;
+use JBJ\Workflow\Collection\NodeCollectionTrait;
 
 /**
  * GraphCollection
  *
- * This is a reference implementation for classes using GraphCollectionTrait
+ * This is a reference implementation for classes using NodeCollectionTrait
  */
 class GraphCollection implements NodeCollectionInterface
 {
-    use GraphCollectionTrait;
+    use NodeCollectionTrait;
 
     /**
      * Constructor
