@@ -18,43 +18,6 @@ abstract class BaseCollectionTest extends TestCase
 {
     abstract protected function createCollection(string $name, array $elements = []);
 
-    public function setUp()
-    {
-        $this->setTestClassname($this->createCollection('null'));
-    }
-
-    private $testClassname;
-    protected function getTestClassname()
-    {
-        return $this->testClassname;
-    }
-
-    protected function setTestClassname($testClassname)
-    {
-        if (is_object($testClassname)) {
-            $testClassname = get_class($testClassname);
-        }
-        if (!class_exists($testClassname)) {
-            throw new \Exception(sprintf('Class "%s" not found', strval($testClassname)));
-        }
-        $this->testClassname = $testClassname;
-    }
-
-    protected function getTraitNames($classorname)
-    {
-        $classname = is_object($classorname) ? get_class($classorname) : $classorname;
-        $rClass = new \ReflectionClass($classname);
-        $parents = [$rClass];
-        while ($parent = $rClass->getParentClass()) {
-            $parents[] = $parent;
-            $rClass = $parent;
-        }
-        $traitNames = [];
-        foreach ($parents as $rClass) {
-            $traitNames = array_merge($traitNames, $rClass->getTraitNames());
-        }
-        return $traitNames;
-    }
 
     protected function hasTrait(string $class, string $trait)
     {
