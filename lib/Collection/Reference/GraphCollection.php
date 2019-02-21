@@ -2,7 +2,7 @@
 
 namespace JBJ\Workflow\Collection\Reference;
 
-use JBJ\Workflow\Collection\ArrayCollectionInterface;
+use JBJ\Workflow\NodeInterface;
 use JBJ\Workflow\Collection\GraphCollectionTrait;
 
 /**
@@ -10,7 +10,7 @@ use JBJ\Workflow\Collection\GraphCollectionTrait;
  *
  * This is a reference implementation for classes using GraphCollectionTrait
  */
-class GraphCollection implements ArrayCollectionInterface
+class GraphCollection implements NodeInterface
 {
     use GraphCollectionTrait;
 

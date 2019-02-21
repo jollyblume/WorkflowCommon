@@ -2,7 +2,7 @@
 
 namespace JBJ\Workflow\Collection\Reference;
 
-use JBJ\Workflow\Collection\ArrayCollectionInterface;
+use JBJ\Workflow\NodeInterface;
 use JBJ\Workflow\Collection\CollectionTrait;
 
 /**
@@ -10,7 +10,7 @@ use JBJ\Workflow\Collection\CollectionTrait;
  *
  * This is a reference implementation for classes using CollectionTrait
  */
-class ComposedCollection implements ArrayCollectionInterface
+class ComposedCollection implements NodeInterface
 {
     use CollectionTrait;
 
