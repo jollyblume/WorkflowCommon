@@ -4,7 +4,7 @@ namespace JBJ\Workflow\Tests\Collection;
 
 use Closure;
 use Doctrine\Common\Collections\Criteria;
-use JBJ\Workflow\Collection\ArrayCollectionInterface;
+use JBJ\Workflow\NodeInterface;
 use JBJ\Workflow\Collection\CollectionCommonTrait;
 use Ramsey\Uuid\Uuid;
 use PHPUnit\Framework\TestCase;

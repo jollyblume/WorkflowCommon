@@ -2,7 +2,7 @@
 
 namespace JBJ\Workflow\Tests\Traits;
 
-use JBJ\Workflow\Collection\ArrayCollectionInterface;
+use JBJ\Workflow\NodeInterface;
 use JBJ\Workflow\Collection\NamedCollectionTrait;
 use JBJ\Workflow\Collection\GraphCollectionTrait;
 use JBJ\Workflow\Traits\ExpectedClassTrait;
@@ -12,7 +12,7 @@ class ExpectedClassTraitTest extends TestCase
 {
     protected function getCollection(string $name, array $elements = [])
     {
-        $collection = new class($name, $elements) implements ArrayCollectionInterface {
+        $collection = new class($name, $elements) implements NodeInterface {
             use GraphCollectionTrait {
                 set as innerSet;
             }
@@ -37,7 +37,7 @@ class ExpectedClassTraitTest extends TestCase
 
     protected function getAcceptableChild(string $name, array $elements = [])
     {
-        $child = new class($name, $elements) implements ArrayCollectionInterface {
+        $child = new class($name, $elements) implements NodeInterface {
             use NamedCollectionTrait;
 
             public function __construct(string $name, array $elements = [])
@@ -51,7 +51,7 @@ class ExpectedClassTraitTest extends TestCase
 
     protected function getDifferentChild(string $name, array $elements = [])
     {
-        $child = new class($name, $elements) implements ArrayCollectionInterface {
+        $child = new class($name, $elements) implements NodeInterface {
             use NamedCollectionTrait;
 
             public function __construct(string $name, array $elements = [])

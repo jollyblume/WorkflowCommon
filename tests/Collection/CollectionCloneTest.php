@@ -2,7 +2,7 @@
 
 namespace JBJ\Workflow\Tests\Collection;
 
-use JBJ\Workflow\Collection\ArrayCollectionInterface;
+use JBJ\Workflow\NodeInterface;
 use JBJ\Workflow\Collection\CollectionTrait;
 use PHPUnit\Framework\TestCase;
 
@@ -10,7 +10,7 @@ class CollectionCloneTest extends TestCase
 {
     protected function createCollection(array $elements = [])
     {
-        $collection = new class($elements) implements ArrayCollectionInterface {
+        $collection = new class($elements) implements NodeInterface {
             use CollectionTrait;
             public function __construct(array $elements = [])
             {
