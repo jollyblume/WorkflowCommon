@@ -3,7 +3,7 @@
 namespace JBJ\Workflow\Tests\Collection;
 
 use Doctrine\Common\Collections\ArrayCollection;
-use JBJ\Workflow\NodeInterface;
+use JBJ\Workflow\NodeCollectionInterface;
 use JBJ\Workflow\Collection\CollectionTrait;
 use JBJ\Workflow\Collection\GraphCollectionTrait;
 use PHPUnit\Framework\TestCase;
@@ -12,7 +12,7 @@ class GraphCollectionTraitTest extends BaseCollectionTest
 {
     protected function createCollection(string $name, array $elements = [])
     {
-        $collection = new class($name, $elements) implements NodeInterface {
+        $collection = new class($name, $elements) implements NodeCollectionInterface {
             use GraphCollectionTrait {
                 saveElements as public;
                 getChildren as public;
@@ -33,7 +33,7 @@ class GraphCollectionTraitTest extends BaseCollectionTest
     {
         $collection = $this->createCollection('testGetChildren');
         $this->assertInstanceOf(ArrayCollection::class, $collection->getChildren());
-        $this->assertInstanceOf(NodeInterface::class, $collection);
+        $this->assertInstanceOf(NodeCollectionInterface::class, $collection);
         $this->assertEquals([], $collection->toArray());
     }
 

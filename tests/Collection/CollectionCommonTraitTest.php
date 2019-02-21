@@ -3,7 +3,7 @@
 namespace JBJ\Workflow\Tests\Collection;
 
 use Doctrine\Common\Collections\ArrayCollection;
-use JBJ\Workflow\NodeInterface;
+use JBJ\Workflow\ArrayCollectionInterface;
 use JBJ\Workflow\Collection\CollectionCommonTrait;
 use JBJ\Workflow\Collection\CollectionTrait;
 use JBJ\Workflow\Collection\GraphCollectionTrait;
@@ -15,7 +15,7 @@ class CollectionCommonTraitTest extends BaseCollectionTest
     {
         $collection = $this->createCollection('testGetChildren');
         $this->assertInstanceOf(ArrayCollection::class, $collection->getChildren());
-        $this->assertInstanceOf(NodeInterface::class, $collection);
+        $this->assertInstanceOf(ArrayCollectionInterface::class, $collection);
         $this->assertEquals([], $collection->toArray());
     }
 
@@ -31,7 +31,7 @@ class CollectionCommonTraitTest extends BaseCollectionTest
 
     protected function createCollection(string $name, array $elements = [])
     {
-        $collection = new class($name, $elements) implements NodeInterface {
+        $collection = new class($name, $elements) implements ArrayCollectionInterface {
             use CollectionCommonTrait {
                 saveElements as public;
                 getChildren as public;
