@@ -20,15 +20,19 @@ class DataProviderTraitTest extends TestCase
                 setTestClassname as public;
                 getTraitNames as public;
                 getRelevantTraitName as public;
+                createTestCollection as public;
                 createCollection as public;
                 createLeafCollection as public;
                 createNodeCollection as public;
                 createAcceptableElement as public;
+                isCollection as public;
                 isNodeCollection as public;
                 getDoctrineTestData as public;
                 getNodeCompatibleData as public;
                 getDataForTestCase as public;
                 hydrateElementKeys as public;
+                getDataProvider as public;
+                getNextDataset as public;
             }
         };
         return $trait;
@@ -165,7 +169,7 @@ class DataProviderTraitTest extends TestCase
         $this->assertTrue($collection->containsKey('element'));
     }
 
-    public function testIsNodeCollectionTrueForCollectionTrait()
+    public function testIsNodeCollectionFalseForCollectionTrait()
     {
         $trait = $this->getTraitFixture();
         $collection = $trait->createCollection();
@@ -173,7 +177,7 @@ class DataProviderTraitTest extends TestCase
         $this->assertFalse($trait->isNodeCollection());
     }
 
-    public function testIsNodeCollectionTrueForLeafCollectionTrait()
+    public function testIsNodeCollectionFalseForLeafCollectionTrait()
     {
         $trait = $this->getTraitFixture();
         $collection = $trait->createLeafCollection('leaf');
@@ -182,6 +186,30 @@ class DataProviderTraitTest extends TestCase
     }
 
     public function testIsNodeCollectionTrueForNodeCollectionTrait()
+    {
+        $trait = $this->getTraitFixture();
+        $collection = $trait->createNodeCollection('node');
+        $trait->setTestClassname($collection);
+        $this->assertTrue($trait->isNodeCollection());
+    }
+
+    public function testIsCollectionTrueForCollectionTrait()
+    {
+        $trait = $this->getTraitFixture();
+        $collection = $trait->createCollection();
+        $trait->setTestClassname($collection);
+        $this->assertTrue($trait->isCollection());
+    }
+
+    public function testIsCollectionFalseForLeafCollectionTrait()
+    {
+        $trait = $this->getTraitFixture();
+        $collection = $trait->createLeafCollection('leaf');
+        $trait->setTestClassname($collection);
+        $this->assertFalse($trait->isNodeCollection());
+    }
+
+    public function testIsCollectionFalseForNodeCollectionTrait()
     {
         $trait = $this->getTraitFixture();
         $collection = $trait->createNodeCollection('node');
@@ -265,5 +293,46 @@ class DataProviderTraitTest extends TestCase
             $hydrated = $trait->hydrateElementKeys($dataSet);
             $this->assertEquals($hydrated, $collection->toArray(), sprintf('Dataindex "%s"', $dataIndex));
         }
+    }
+
+    public function testGetDataProvider()
+    {
+        $trait = $this->getTraitFixture();
+        $collection = $trait->createNodeCollection('node');
+        $trait->setTestClassname($collection);
+        $data = $trait->getDataProvider();
+        $this->assertArrayHasKey('__DATAPROVIDER__', $data);
+    }
+
+    // public function testGetNetDataset()
+    // {
+    //     $this->markTestSkipped();
+    // }
+
+    public function testCreateTestCollectionForCollection()
+    {
+        $trait = $this->getTraitFixture();
+        $collection = $trait->createCollection();
+        $trait->setTestClassname($collection);
+        $newCollection = $trait->createTestCollection('collection');
+        $this->assertInstanceOf($trait->getTestClassname(), $newCollection);
+    }
+
+    public function testCreateTestCollectionForLeafCollection()
+    {
+        $trait = $this->getTraitFixture();
+        $collection = $trait->createLeafCollection('leaf');
+        $trait->setTestClassname($collection);
+        $newCollection = $trait->createTestCollection('collection');
+        $this->assertInstanceOf($trait->getTestClassname(), $newCollection);
+    }
+
+    public function testCreateTestCollectionForNodeCollection()
+    {
+        $trait = $this->getTraitFixture();
+        $collection = $trait->createNodeCollection('node');
+        $trait->setTestClassname($collection);
+        $newCollection = $trait->createTestCollection('collection');
+        $this->assertInstanceOf($trait->getTestClassname(), $newCollection);
     }
 }

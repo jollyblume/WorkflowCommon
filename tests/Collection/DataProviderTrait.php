@@ -63,6 +63,15 @@ trait DataProviderTrait
         return $relevantName;
     }
 
+    protected function createTestCollection(string $name, array $elements = [])
+    {
+        $testClassname = $this->getTestClassname();
+        if ($this->isCollection()) {
+            return new $testClassname($elements);
+        }
+        return new $testClassname($name, $elements);
+    }
+
     protected function createCollection(array $elements = [])
     {
         $collection = new class($elements) implements ArrayCollectionInterface {
@@ -137,7 +146,7 @@ trait DataProviderTrait
         ];
         $relevantName = $this->getRelevantTraitName();
         $method = $allowedNames[$relevantName];
-        if (NodeCollectionTrait::class === $relevantName) {
+        if ($this->isNodeCollection()) {
             return $this->$method($name, $elements);
         }
         return $this->$method($elements);
@@ -146,6 +155,12 @@ trait DataProviderTrait
     protected function isNodeCollection()
     {
         $isNodeCollection = $this->getRelevantTraitName() === NodeCollectionTrait::class;
+        return $isNodeCollection;
+    }
+
+    protected function isCollection()
+    {
+        $isNodeCollection = $this->getRelevantTraitName() === CollectionTrait::class;
         return $isNodeCollection;
     }
 
@@ -204,5 +219,30 @@ trait DataProviderTrait
             $hydrated[$key] = $element;
         }
         return $hydrated;
+    }
+
+    protected function getDataProvider()
+    {
+        $data = $this->getDataForTestCase();
+        $data['__DATAPROVIDER__'] = true;
+        return $data;
+    }
+
+    protected function getNextDataset(string $method, $providerData)
+    {
+        if (array_key_exists('__DATASETINDEX__', $providerData)) {
+            return $providerData;
+        }
+        if (array_key_exists('__DATAPROVIDER__', $providerData)) {
+            foreach ($providerData as $datasetIndex => $dataset) {
+                if ('__DATAPROVIDER__' === $datasetIndex) {
+                    continue;
+                }
+                $dataset['__DATASETINDEX__'] = $datasetIndex;
+                $this->$method($dataset); //run test with dataset
+            }
+            return null; //signal no more datasets
+        }
+        throw new \Exception('Unknown providerData');
     }
 }

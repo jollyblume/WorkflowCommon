@@ -21,65 +21,6 @@ abstract class BaseCollectionTest extends TestCase
 
 
 
-    /** * @group init * @depends testGraphDataProvider */
-    public function testHydrateElementKeys($providerData)
-    {
-        $elements = $this->getNextDataset(__FUNCTION__, $providerData);
-        if (null === $elements) {
-            return;
-        }
-        if (array_key_exists('__DATASETINDEX__', $elements)) {
-            $datasetIndex = $elements['__DATASETINDEX__'];
-            unset($elements['__DATASETINDEX__']);
-        }
-
-        // actual test follows:
-        $collection = $this->createCollection($datasetIndex, $elements);
-        $expectedElements = $this->hydrateElementKeys($elements);
-        $this->assertEquals($expectedElements, $collection->toArray());
-    }
-
-    protected function buildSimpleDataProvider()
-    {
-        $providers = $this->getDoctrineTestData();
-        $providers['__DATAPROVIDER__'] = 'simple';
-        return $providers;
-    }
-
-    protected function buildNodeDataProvider()
-    {
-        $providers = $this->getNodeCompatibleData();
-        $providers['__DATAPROVIDER__'] = 'graph';
-        return $providers;
-    }
-
-    protected function buildCompleteDataProvider()
-    {
-        $doctrineTestData = $this->getDoctrineTestData();
-        $nodeTestData = $this->getNodeCompatibleData();
-        $providers = array_merge($doctrineTestData, $nodeTestData);
-        $providers['__DATAPROVIDER__'] = 'complete';
-        return $providers;
-    }
-
-    protected function getNextDataset(string $method, $providerData)
-    {
-        if (array_key_exists('__DATASETINDEX__', $providerData)) {
-            return $providerData;
-        }
-        if (array_key_exists('__DATAPROVIDER__', $providerData)) {
-            foreach ($providerData as $datasetIndex => $dataset) {
-                if ('__DATAPROVIDER__' === $datasetIndex) {
-                    continue;
-                }
-                $dataset['__DATASETINDEX__'] = $datasetIndex;
-                $this->$method($dataset); //run test with dataset
-            }
-            return null; //signal no more datasets
-        }
-        throw new \Exception('Unknown providerData');
-    }
-
     /** @group init */
     public function testCreateCollection()
     {
@@ -101,22 +42,6 @@ abstract class BaseCollectionTest extends TestCase
             ];
         }
         $this->assertEquals($expectedElements, $collection->toArray());
-    }
-
-    /** * @group init * This is the simple data provider */
-    public function testSimpleDataProvider()
-    {
-        $providerData = $this->buildSimpleDataProvider();
-        $this->assertEquals('simple', $providerData['__DATAPROVIDER__']);
-        return $providerData;
-    }
-
-    /** * @group init * This is the graph data provider */
-    public function testGraphDataProvider()
-    {
-        $providerData = $this->buildGraphDataProvider();
-        $this->assertEquals('graph', $providerData['__DATAPROVIDER__']);
-        return $providerData;
     }
 
     /** * @group init * This is the complete data provider */
