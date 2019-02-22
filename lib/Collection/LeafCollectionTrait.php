@@ -6,11 +6,11 @@ use JBJ\Workflow\Traits\ElementNameTrait;
 use JBJ\Workflow\Traits\ElementParentTrait;
 
 /**
- * NamedCollectionTrait
+ * LeafCollectionTrait
  *
  * Creates a collection that can be a graph leaf node
  */
-trait NamedCollectionTrait
+trait LeafCollectionTrait
 {
     use CollectionTrait, ElementNameTrait, ElementParentTrait;
 }

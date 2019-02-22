@@ -6,11 +6,11 @@ use JBJ\Workflow\NodeCollectionInterface;
 use JBJ\Workflow\Collection\NodeCollectionTrait;
 
 /**
- * GraphCollection
+ * NodeCollection
  *
  * This is a reference implementation for classes using NodeCollectionTrait
  */
-class GraphCollection implements NodeCollectionInterface
+class NodeCollection implements NodeCollectionInterface
 {
     use NodeCollectionTrait;
 

@@ -6,11 +6,11 @@ use JBJ\Workflow\NodeCollectionInterface;
 use JBJ\Workflow\Collection\NamedCollectionTrait;
 
 /**
- * NamedComposedCollection
+ * LeafCollection
  *
  * This is a reference implementation for classes using NamedCollectionTrait
  */
-class NamedComposedCollection implements NodeCollectionInterface
+class LeafCollection implements NodeCollectionInterface
 {
     use NamedCollectionTrait;
 

@@ -6,11 +6,11 @@ use JBJ\Workflow\ArrayCollectionInterface;
 use JBJ\Workflow\Collection\CollectionTrait;
 
 /**
- * ComposedCollection
+ * Collection
  *
  * This is a reference implementation for classes using CollectionTrait
  */
-class ComposedCollection implements ArrayCollectionInterface
+class Collection implements ArrayCollectionInterface
 {
     use CollectionTrait;
 
