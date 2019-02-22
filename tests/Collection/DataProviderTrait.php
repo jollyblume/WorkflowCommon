@@ -71,6 +71,15 @@ trait DataProviderTrait
             {
                 $this->saveElements($elements);
             }
+            private $otherValue;
+            public function getOtherValue()
+            {
+                return $this->otherValue;
+            }
+            public function setOtherValue($otherValue)
+            {
+                $this->otherValue = $otherValue;
+            }
         };
         return $collection;
     }
@@ -84,6 +93,15 @@ trait DataProviderTrait
                 $this->setName($name);
                 $this->saveElements($elements);
             }
+            private $otherValue;
+            public function getOtherValue()
+            {
+                return $this->otherValue;
+            }
+            public function setOtherValue($otherValue)
+            {
+                $this->otherValue = $otherValue;
+            }
         };
         return $collection;
     }
@@ -96,6 +114,15 @@ trait DataProviderTrait
             {
                 $this->setName($name);
                 $this->saveElements($elements);
+            }
+            private $otherValue;
+            public function getOtherValue()
+            {
+                return $this->otherValue;
+            }
+            public function setOtherValue($otherValue)
+            {
+                $this->otherValue = $otherValue;
             }
         };
         return $collection;
@@ -114,5 +141,68 @@ trait DataProviderTrait
             return $this->$method($name, $elements);
         }
         return $this->$method($elements);
+    }
+
+    protected function isNodeCollection()
+    {
+        $isNodeCollection = $this->getRelevantTraitName() === NodeCollectionTrait::class;
+        return $isNodeCollection;
+    }
+
+    protected function getDoctrineTestData()
+    {
+        return [
+            'indexed'     => [1, 2, 3, 4, 5],
+            'associative' => ['A' => 'a', 'B' => 'b', 'C' => 'c'],
+            'mixed'       => ['A' => 'a', 1, 'B' => 'b', 2, 3],
+        ];
+    }
+
+    protected function getNodeCompatibleData()
+    {
+        return [
+            'indexed-graph' => [
+                $this->createAcceptableElement('test.id.1'),
+                $this->createAcceptableElement('test.id.2'),
+                $this->createAcceptableElement('test.id.3'),
+                $this->createAcceptableElement('test.id.4'),
+                $this->createAcceptableElement('test.id.5'),
+                ],
+            'associative-graph' => [
+                'test.id.aA' => $this->createAcceptableElement('test.id.aA'),
+                'test.id.aB' => $this->createAcceptableElement('test.id.aB'),
+                'test.id.aC' => $this->createAcceptableElement('test.id.aC'),
+                'test.id.aD' => $this->createAcceptableElement('test.id.aD'),
+                ],
+            'mixed-graph' => [
+                'test.id.bA' => $this->createAcceptableElement('test.id.bA'),
+                $this->createAcceptableElement('test.id.6'),
+                'test.id.bB' => $this->createAcceptableElement('test.id.bB'),
+                $this->createAcceptableElement('test.id.7'),
+                $this->createAcceptableElement('test.id.8'),
+                ],
+        ];
+    }
+
+    protected function getDataForTestCase()
+    {
+        $data = $this->getNodeCompatibleData();
+        if (!$this->isNodeCollection()) {
+            $data = array_merge($data, $this->getDoctrineTestData());
+        }
+        return $data;
+    }
+
+    protected function hydrateElementKeys($elements)
+    {
+        if (!$this->isNodeCollection() || empty($elements)) {
+            return (array) $elements;
+        }
+        $hydrated = [];
+        foreach ($elements as $key => $element) {
+            $key = $element->getName();
+            $hydrated[$key] = $element;
+        }
+        return $hydrated;
     }
 }

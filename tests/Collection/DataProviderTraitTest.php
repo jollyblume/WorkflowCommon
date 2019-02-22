@@ -24,6 +24,11 @@ class DataProviderTraitTest extends TestCase
                 createLeafCollection as public;
                 createNodeCollection as public;
                 createAcceptableElement as public;
+                isNodeCollection as public;
+                getDoctrineTestData as public;
+                getNodeCompatibleData as public;
+                getDataForTestCase as public;
+                hydrateElementKeys as public;
             }
         };
         return $trait;
@@ -91,6 +96,11 @@ class DataProviderTraitTest extends TestCase
         $collection = $trait->createCollection(['test']);
         $this->assertEquals(['test'], $collection->toArray());
         $this->assertInstanceOf(ArrayCollectionInterface::class, $collection);
+        $this->assertTrue(method_exists($collection, 'getOtherValue'));
+        $this->assertTrue(method_exists($collection, 'setOtherValue'));
+        $this->assertNull($collection->getOtherValue());
+        $collection->setOtherValue('yo');
+        $this->assertEquals('yo', $collection->getOtherValue());
     }
 
     public function testLeafCreateCollection()
@@ -101,6 +111,11 @@ class DataProviderTraitTest extends TestCase
         $this->assertInstanceOf(ArrayCollectionInterface::class, $collection);
         $this->assertInstanceOf(NodeInterface::class, $collection);
         $this->assertEquals('leaf', $collection->getName());
+        $this->assertTrue(method_exists($collection, 'getOtherValue'));
+        $this->assertTrue(method_exists($collection, 'setOtherValue'));
+        $this->assertNull($collection->getOtherValue());
+        $collection->setOtherValue('yo');
+        $this->assertEquals('yo', $collection->getOtherValue());
     }
 
     public function testCreateNodeCollection()
@@ -113,6 +128,11 @@ class DataProviderTraitTest extends TestCase
         $this->assertInstanceOf(NodeCollectionInterface::class, $collection);
         $this->assertInstanceOf(NodeInterface::class, $collection);
         $this->assertEquals('node', $collection->getName());
+        $this->assertTrue(method_exists($collection, 'getOtherValue'));
+        $this->assertTrue(method_exists($collection, 'setOtherValue'));
+        $this->assertNull($collection->getOtherValue());
+        $collection->setOtherValue('yo');
+        $this->assertEquals('yo', $collection->getOtherValue());
     }
 
     public function testCreateAcceptableElementForCollection()
@@ -143,5 +163,59 @@ class DataProviderTraitTest extends TestCase
         $element = $trait->createAcceptableElement('element');
         $collection[] = $element;
         $this->assertTrue($collection->containsKey('element'));
+    }
+
+    public function testIsNodeCollectionTrueForCollectionTrait()
+    {
+        $trait = $this->getTraitFixture();
+        $collection = $trait->createCollection();
+        $trait->setTestClassname($collection);
+        $this->assertFalse($trait->isNodeCollection());
+    }
+
+    public function testIsNodeCollectionTrueForLeafCollectionTrait()
+    {
+        $trait = $this->getTraitFixture();
+        $collection = $trait->createLeafCollection('leaf');
+        $trait->setTestClassname($collection);
+        $this->assertFalse($trait->isNodeCollection());
+    }
+
+    public function testIsNodeCollectionTrueForNodeCollectionTrait()
+    {
+        $trait = $this->getTraitFixture();
+        $collection = $trait->createNodeCollection('node');
+        $trait->setTestClassname($collection);
+        $this->assertTrue($trait->isNodeCollection());
+    }
+
+    public function testGetDataForTestCaseForCollection()
+    {
+        $trait = $this->getTraitFixture();
+        $collection = $trait->createCollection();
+        $trait->setTestClassname($collection);
+        $data = $trait->getDataForTestCase();
+        $expectedData = array_merge($trait->getNodeCompatibleData(), $trait->getDoctrineTestData());
+        $this->assertEquals($expectedData, $data);
+    }
+
+    public function testGetDataForTestCaseForLeafCollection()
+    {
+        $trait = $this->getTraitFixture();
+        $collection = $trait->createLeafCollection('leaf');
+        $trait->setTestClassname($collection);
+        $data = $trait->getDataForTestCase();
+        $expectedData = array_merge($trait->getNodeCompatibleData(), $trait->getDoctrineTestData());
+        $this->assertEquals($expectedData, $data);
+    }
+
+    public function testGetDataForTestCaseForNodeCollection()
+    {
+        $trait = $this->getTraitFixture();
+        $collection = $trait->createNodeCollection('node');
+        $trait->setTestClassname($collection);
+        $data = $trait->getDataForTestCase();
+        $expectedData = $trait->getNodeCompatibleData();
+        $this->assertEquals($expectedData, $data);
     }
 }
