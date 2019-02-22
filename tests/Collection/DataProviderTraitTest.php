@@ -218,4 +218,52 @@ class DataProviderTraitTest extends TestCase
         $expectedData = $trait->getNodeCompatibleData();
         $this->assertEquals($expectedData, $data);
     }
+
+    public function testHydrateElementKeysForCollection()
+    {
+        $trait = $this->getTraitFixture();
+        $collection = $trait->createCollection();
+        $trait->setTestClassname($collection);
+        $data = $trait->getDataForTestCase();
+        foreach ($data as $dataIndex => $dataSet) {
+            $collection->clear();
+            foreach ($dataSet as $key => $value) {
+                $collection->set($key, $value);
+            }
+            $hydrated = $trait->hydrateElementKeys($dataSet);
+            $this->assertEquals($hydrated, $collection->toArray(), sprintf('Dataindex "%s"', $dataIndex));
+        }
+    }
+
+    public function testHydrateElementKeysForLeafCollection()
+    {
+        $trait = $this->getTraitFixture();
+        $collection = $trait->createLeafCollection('leaf');
+        $trait->setTestClassname($collection);
+        $data = $trait->getDataForTestCase();
+        foreach ($data as $dataIndex => $dataSet) {
+            $collection->clear();
+            foreach ($dataSet as $key => $value) {
+                $collection->set($key, $value);
+            }
+            $hydrated = $trait->hydrateElementKeys($dataSet);
+            $this->assertEquals($hydrated, $collection->toArray(), sprintf('Dataindex "%s"', $dataIndex));
+        }
+    }
+
+    public function testHydrateElementKeysForNodeCollection()
+    {
+        $trait = $this->getTraitFixture();
+        $collection = $trait->createNodeCollection('node');
+        $trait->setTestClassname($collection);
+        $data = $trait->getDataForTestCase();
+        foreach ($data as $dataIndex => $dataSet) {
+            $collection->clear();
+            foreach ($dataSet as $key => $value) {
+                $collection->set($key, $value);
+            }
+            $hydrated = $trait->hydrateElementKeys($dataSet);
+            $this->assertEquals($hydrated, $collection->toArray(), sprintf('Dataindex "%s"', $dataIndex));
+        }
+    }
 }
