@@ -3,7 +3,7 @@
 namespace JBJ\Workflow\Collection\Reference;
 
 use JBJ\Workflow\NodeCollectionInterface;
-use JBJ\Workflow\Collection\NamedCollectionTrait;
+use JBJ\Workflow\Collection\LeafCollectionTrait;
 
 /**
  * LeafCollection
@@ -12,7 +12,7 @@ use JBJ\Workflow\Collection\NamedCollectionTrait;
  */
 class LeafCollection implements NodeCollectionInterface
 {
-    use NamedCollectionTrait;
+    use LeafCollectionTrait;
 
     /**
      * Constructor
