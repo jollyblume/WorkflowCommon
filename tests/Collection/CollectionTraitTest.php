@@ -82,5 +82,6 @@ class CollectionTraitTest extends TestCase
         $collection = $this->createCollection('testDataProvider', $elements);
         $hydrated = $this->hydrateElementKeys($elements);
         $this->assertEquals($hydrated, $collection->toArray());
+        return $collection;
     }
 }
