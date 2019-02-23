@@ -12,31 +12,29 @@ use PHPUnit\Framework\TestCase;
 
 trait DataProviderTrait
 {
-    private $testClassname;
-    protected function getTestClassname()
+    abstract protected function getTestClassname();
+    abstract protected function createCollection(string $name, array $elements = []);
+
+    public function testAcceptableDataProvider()
     {
-        $classname = $this->testClassname;
-        return $classname;
+        $data = $this->getDataForTestCase();
+        $count = $this->isNodeCollection() ? 3 : 6;
+        $this->assertEquals(count($data), $count);
+        return [$data];
     }
 
-    protected function setTestClassname($class)
+    public function testNodeDataProvider()
     {
-        $classname = is_object($class) ? get_class($class) : strval($class);
-        if (!class_exists($classname)) {
-            throw new \Exception(sprintf('Class "%s" not found', $classname));
-        }
-        $this->testClassname = $classname;
-        $relevantNamesFixture = [
-            CollectionTrait::class,
-            LeafCollectionTrait::class,
-            NodeCollectionTrait::class,
-        ];
-        $traitNames = $this->getTraitNames($classname);
-        $relevantNames = array_intersect($relevantNamesFixture, $traitNames);
-        if (count($relevantNames) === 0) {
-            throw new \Exception(sprintf('No relative names found in "%s"', join(',', $traitNames)));
-        }
-        $this->relevantTraitName = reset($relevantNames);
+        $data = $this->getNodeCompatibleData();
+        $this->assertCount(3, $data);
+        return [$data];
+    }
+
+    public function testDoctrineDataProvider()
+    {
+        $data = $this->getDoctrineTestData();
+        $this->assertCount(3, $data);
+        return [$data];
     }
 
     protected function getTraitNames($class)
@@ -60,19 +58,25 @@ trait DataProviderTrait
     protected function getRelevantTraitName()
     {
         $relevantName = $this->relevantTraitName;
+        if (!$relevantName) {
+            $relevantNamesFixture = [
+                CollectionTrait::class,
+                LeafCollectionTrait::class,
+                NodeCollectionTrait::class,
+            ];
+            $classname = $this->getTestClassname();
+            $traitNames = $this->getTraitNames($classname);
+            $relevantNames = array_intersect($relevantNamesFixture, $traitNames);
+            if (count($relevantNames) === 0) {
+                throw new \Exception(sprintf('No relative names found in "%s"', join(',', $traitNames)));
+            }
+            $relevantName = reset($relevantNames);
+            $this->relevantTraitName = $relevantName;
+        }
         return $relevantName;
     }
 
-    protected function createTestCollection(string $name, array $elements = [])
-    {
-        $testClassname = $this->getTestClassname();
-        if ($this->isCollection()) {
-            return new $testClassname($elements);
-        }
-        return new $testClassname($name, $elements);
-    }
-
-    protected function createCollection(array $elements = [])
+    protected function createCollectionElement(array $elements = [])
     {
         $collection = new class($elements) implements ArrayCollectionInterface {
             use CollectionTrait;
@@ -93,7 +97,7 @@ trait DataProviderTrait
         return $collection;
     }
 
-    protected function createLeafCollection(string $name, array $elements = [])
+    protected function createLeafCollectionElement(string $name, array $elements = [])
     {
         $collection = new class($name, $elements) implements NodeCollectionInterface {
             use LeafCollectionTrait;
@@ -115,7 +119,7 @@ trait DataProviderTrait
         return $collection;
     }
 
-    protected function createNodeCollection(string $name, array $elements = [])
+    protected function createNodeCollectionElement(string $name, array $elements = [])
     {
         $collection = new class($name, $elements) implements NodeCollectionInterface {
             use NodeCollectionTrait;
@@ -140,9 +144,9 @@ trait DataProviderTrait
     protected function createAcceptableElement(string $name, array $elements = [])
     {
         $allowedNames = [
-            NodeCollectionTrait::class => 'createLeafCollection',
-            LeafCollectionTrait::class => 'createCollection',
-            CollectionTrait::class => 'createCollection',
+            NodeCollectionTrait::class => 'createLeafCollectionElement',
+            LeafCollectionTrait::class => 'createCollectionElement',
+            CollectionTrait::class => 'createCollectionElement',
         ];
         $relevantName = $this->getRelevantTraitName();
         $method = $allowedNames[$relevantName];
@@ -152,15 +156,21 @@ trait DataProviderTrait
         return $this->$method($elements);
     }
 
-    protected function isNodeCollection()
-    {
-        $isNodeCollection = $this->getRelevantTraitName() === NodeCollectionTrait::class;
-        return $isNodeCollection;
-    }
-
     protected function isCollection()
     {
         $isNodeCollection = $this->getRelevantTraitName() === CollectionTrait::class;
+        return $isNodeCollection;
+    }
+
+    protected function isLeafCollection()
+    {
+        $isLeafCollection = $this->getRelevantTraitName() === LeafCollectionTrait::class;
+        return $isLeafCollection;
+    }
+
+    protected function isNodeCollection()
+    {
+        $isNodeCollection = $this->getRelevantTraitName() === NodeCollectionTrait::class;
         return $isNodeCollection;
     }
 
@@ -219,30 +229,5 @@ trait DataProviderTrait
             $hydrated[$key] = $element;
         }
         return $hydrated;
-    }
-
-    protected function getDataProvider()
-    {
-        $data = $this->getDataForTestCase();
-        $data['__DATAPROVIDER__'] = true;
-        return $data;
-    }
-
-    protected function getNextDataset(string $method, $providerData)
-    {
-        if (array_key_exists('__DATASETINDEX__', $providerData)) {
-            return $providerData;
-        }
-        if (array_key_exists('__DATAPROVIDER__', $providerData)) {
-            foreach ($providerData as $datasetIndex => $dataset) {
-                if ('__DATAPROVIDER__' === $datasetIndex) {
-                    continue;
-                }
-                $dataset['__DATASETINDEX__'] = $datasetIndex;
-                $this->$method($dataset); //run test with dataset
-            }
-            return null; //signal no more datasets
-        }
-        throw new \Exception('Unknown providerData');
     }
 }
