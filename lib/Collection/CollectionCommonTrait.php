@@ -300,8 +300,6 @@ trait CollectionCommonTrait
      */
     public function __toString()
     {
-        // if (me
-        //todo,,,
-        return strval($this->getChildren());
+        return self::class . '@' . spl_object_hash($this);
     }
 }

@@ -314,7 +314,7 @@ trait DataProviderTrait
         $elements = $this->hydrateElementKeys($elements);
         $iterations = 0;
         foreach ($collection->getIterator() as $key => $item) {
-            $this->assertSame($elements[$key], $item, 'Item ' . $key . ' not match');
+            $this->assertSame($elements[$key], $item);
             ++$iterations;
         }
 
