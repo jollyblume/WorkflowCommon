@@ -3,21 +3,22 @@
 namespace JBJ\Workflow\Tests\Collection\Reference;
 
 use JBJ\Workflow\Tests\Collection\DataProviderTrait;
-use JBJ\Workflow\Collection\Reference\LeafCollection;
+use JBJ\Workflow\Collection\Reference\UuidLeafCollection;
+use JBJ\Workflow\Validator\UuidValidator;
 use PHPUnit\Framework\TestCase;
 
-class LeafCollectionTest extends TestCase
+class UuidLeafCollectionTest extends TestCase
 {
     use DataProviderTrait;
 
     protected function getTestClassname()
     {
-        return LeafCollection::class;
+        return UuidLeafCollection::class;
     }
 
     protected function createCollection(string $name, array $elements = [])
     {
-        $collection = new LeafCollection($name, $elements);
+        $collection = new UuidLeafCollection($name, $elements);
         return $collection;
     }
 }

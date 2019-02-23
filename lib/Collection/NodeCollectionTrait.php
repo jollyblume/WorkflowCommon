@@ -42,7 +42,7 @@ trait NodeCollectionTrait
             }
         }
         if (!empty($throwThis)) {
-            throw new FixMeException(sprintf('Invalid element "%s". It is missing methods "%s"', $element, join(',', $throwThis)));
+            throw new FixMeException(sprintf('Invalid element "%s". It is missing methods "%s"', join(',', $element), join(',', $throwThis)));
         }
     }
 

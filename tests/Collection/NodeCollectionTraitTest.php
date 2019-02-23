@@ -10,7 +10,7 @@ use JBJ\Workflow\Collection\LeafCollectionTrait;
 use JBJ\Workflow\Collection\NodeCollectionTrait;
 use PHPUnit\Framework\TestCase;
 
-class CollectionTraitTest extends TestCase
+class NodeCollectionTraitTest extends TestCase
 {
     use DataProviderTrait;
 
@@ -22,8 +22,8 @@ class CollectionTraitTest extends TestCase
     protected function createCollection(string $name, array $elements = [])
     {
         $name;
-        $collection = new class($elements) implements ArrayCollectionInterface {
-            use CollectionTrait;
+        $collection = new class($elements) implements NodeCollectionInterface {
+            use NodeCollectionTrait;
             public function __construct(array $elements = [])
             {
                 $this->saveElements($elements);
@@ -40,9 +40,9 @@ class CollectionTraitTest extends TestCase
         $this->assertTrue($collection->contains($element));
     }
 
-    public function testIsCollectionTrue()
+    public function testIsCollectionFalse()
     {
-        $this->assertTrue($this->isCollection());
+        $this->assertFalse($this->isCollection());
     }
 
     public function testIsLeafCollectionFalse()
@@ -50,22 +50,22 @@ class CollectionTraitTest extends TestCase
         $this->assertFalse($this->isLeafCollection());
     }
 
-    public function testIsNodeCollectionFalse()
+    public function testIsNodeCollectionTrue()
     {
-        $this->assertFalse($this->isNodeCollection());
+        $this->assertTrue($this->isNodeCollection());
     }
 
     public function testGetDataForTestCase()
     {
         $data = $this->getDataForTestCase()[0];
-        $expectedData = array_merge($this->getNodeCompatibleData()[0], $this->getDoctrineTestData()[0]);
+        $expectedData = $this->getNodeCompatibleData()[0];
         $this->assertEquals($expectedData, $data);
     }
 
     public function testHydrateElementKeys()
     {
         $collection = $this->createCollection('testHydrateElementKeys');
-        $data = $this->getDataForTestCase();
+        $data = $this->getDataForTestCase()[0];
         foreach ($data as $dataIndex => $dataSet) {
             $collection->clear();
             foreach ($dataSet as $key => $value) {

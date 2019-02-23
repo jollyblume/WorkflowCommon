@@ -10,7 +10,7 @@ use JBJ\Workflow\Collection\LeafCollectionTrait;
 use JBJ\Workflow\Collection\NodeCollectionTrait;
 use PHPUnit\Framework\TestCase;
 
-class CollectionTraitTest extends TestCase
+class LeafCollectionTraitTest extends TestCase
 {
     use DataProviderTrait;
 
@@ -22,8 +22,8 @@ class CollectionTraitTest extends TestCase
     protected function createCollection(string $name, array $elements = [])
     {
         $name;
-        $collection = new class($elements) implements ArrayCollectionInterface {
-            use CollectionTrait;
+        $collection = new class($elements) implements NodeCollectionInterface {
+            use LeafCollectionTrait;
             public function __construct(array $elements = [])
             {
                 $this->saveElements($elements);
@@ -40,14 +40,14 @@ class CollectionTraitTest extends TestCase
         $this->assertTrue($collection->contains($element));
     }
 
-    public function testIsCollectionTrue()
+    public function testIsCollectionFalse()
     {
-        $this->assertTrue($this->isCollection());
+        $this->assertFalse($this->isCollection());
     }
 
-    public function testIsLeafCollectionFalse()
+    public function testIsLeafCollectionTrue()
     {
-        $this->assertFalse($this->isLeafCollection());
+        $this->assertTrue($this->isLeafCollection());
     }
 
     public function testIsNodeCollectionFalse()

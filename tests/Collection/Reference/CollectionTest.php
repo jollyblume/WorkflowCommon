@@ -2,13 +2,23 @@
 
 namespace JBJ\Workflow\Tests\Collection\Reference;
 
+use JBJ\Workflow\Tests\Collection\DataProviderTrait;
 use JBJ\Workflow\Collection\Reference\Collection;
-use JBJ\Workflow\Tests\Collection\BaseCollectionTest;
+use PHPUnit\Framework\TestCase;
 
-class CollectionTest extends BaseCollectionTest
+class CollectionTest extends TestCase
 {
-    public function setUp()
+    use DataProviderTrait;
+
+    protected function getTestClassname()
     {
-        $this->setTestClassname(Collection::class);
+        return Collection::class;
+    }
+
+    protected function createCollection(string $name, array $elements = [])
+    {
+        $name;
+        $collection = new Collection($elements);
+        return $collection;
     }
 }

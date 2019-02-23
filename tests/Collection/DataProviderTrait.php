@@ -2,40 +2,19 @@
 
 namespace JBJ\Workflow\Tests\Collection;
 
+use Doctrine\Common\Collections\Criteria;
 use JBJ\Workflow\ArrayCollectionInterface;
 use JBJ\Workflow\NodeCollectionInterface;
-use JBJ\Workflow\NodeInterface;
 use JBJ\Workflow\Collection\CollectionTrait;
 use JBJ\Workflow\Collection\LeafCollectionTrait;
 use JBJ\Workflow\Collection\NodeCollectionTrait;
+use Ramsey\Uuid\Uuid;
 use PHPUnit\Framework\TestCase;
 
 trait DataProviderTrait
 {
     abstract protected function getTestClassname();
     abstract protected function createCollection(string $name, array $elements = []);
-
-    public function testAcceptableDataProvider()
-    {
-        $data = $this->getDataForTestCase();
-        $count = $this->isNodeCollection() ? 3 : 6;
-        $this->assertEquals(count($data), $count);
-        return [$data];
-    }
-
-    public function testNodeDataProvider()
-    {
-        $data = $this->getNodeCompatibleData();
-        $this->assertCount(3, $data);
-        return [$data];
-    }
-
-    public function testDoctrineDataProvider()
-    {
-        $data = $this->getDoctrineTestData();
-        $this->assertCount(3, $data);
-        return [$data];
-    }
 
     protected function getTraitNames($class)
     {
@@ -174,18 +153,18 @@ trait DataProviderTrait
         return $isNodeCollection;
     }
 
-    protected function getDoctrineTestData()
+    public function getDoctrineTestData()
     {
-        return [
+        return [[
             'indexed'     => [1, 2, 3, 4, 5],
             'associative' => ['A' => 'a', 'B' => 'b', 'C' => 'c'],
             'mixed'       => ['A' => 'a', 1, 'B' => 'b', 2, 3],
-        ];
+        ]];
     }
 
-    protected function getNodeCompatibleData()
+    public function getNodeCompatibleData()
     {
-        return [
+        return [[
             'indexed-graph' => [
                 $this->createAcceptableElement('test.id.1'),
                 $this->createAcceptableElement('test.id.2'),
@@ -206,16 +185,16 @@ trait DataProviderTrait
                 $this->createAcceptableElement('test.id.7'),
                 $this->createAcceptableElement('test.id.8'),
                 ],
-        ];
+        ]];
     }
 
-    protected function getDataForTestCase()
+    public function getDataForTestCase()
     {
-        $data = $this->getNodeCompatibleData();
+        $data = $this->getNodeCompatibleData()[0];
         if (!$this->isNodeCollection()) {
-            $data = array_merge($data, $this->getDoctrineTestData());
+            $data = array_merge($data, $this->getDoctrineTestData()[0]);
         }
-        return $data;
+        return [$data];
     }
 
     protected function hydrateElementKeys($elements)
@@ -233,7 +212,7 @@ trait DataProviderTrait
 
     /*********************** ArrayCollection Tests below *********************/
 
-    /** @dataProvider testAcceptableDataProvider */
+    /** @dataProvider getDataForTestCase */
     public function testFirst($elements)
     {
         $collection = $this->createCollection('test.collection', $elements);
@@ -241,7 +220,7 @@ trait DataProviderTrait
         $this->assertSame(reset($elements), $collection->first());
     }
 
-    /** @dataProvider testAcceptableDataProvider */
+    /** @dataProvider getDataForTestCase */
     public function testLast($elements)
     {
         $collection = $this->createCollection('test.collection', $elements);
@@ -249,7 +228,7 @@ trait DataProviderTrait
         $this->assertSame(end($elements), $collection->last());
     }
 
-    /** @dataProvider testAcceptableDataProvider */
+    /** @dataProvider getDataForTestCase */
     public function testNext($elements)
     {
         $collection = $this->createCollection('test.collection', $elements);
@@ -268,7 +247,7 @@ trait DataProviderTrait
         }
     }
 
-    /** @dataProvider testAcceptableDataProvider */
+    /** @dataProvider getDataForTestCase */
     public function testKey($elements)
     {
         $collection = $this->createCollection('test.collection', $elements);
@@ -286,7 +265,7 @@ trait DataProviderTrait
         }
     }
 
-    /** @dataProvider testAcceptableDataProvider */
+    /** @dataProvider getDataForTestCase */
     public function testCurrent($elements)
     {
         $collection = $this->createCollection('test.collection', $elements);
@@ -304,7 +283,7 @@ trait DataProviderTrait
         }
     }
 
-    /** @dataProvider testAcceptableDataProvider */
+    /** @dataProvider getDataForTestCase */
     public function testGetKeys($elements)
     {
         $collection = $this->createCollection('test.collection', $elements);
@@ -312,7 +291,7 @@ trait DataProviderTrait
         $this->assertSame(array_keys($elements), $collection->getKeys());
     }
 
-    /** @dataProvider testAcceptableDataProvider */
+    /** @dataProvider getDataForTestCase */
     public function testGetValues($elements)
     {
         $collection = $this->createCollection('test.collection', $elements);
@@ -320,7 +299,7 @@ trait DataProviderTrait
         $this->assertSame(array_values($elements), $collection->getValues());
     }
 
-    /** @dataProvider testAcceptableDataProvider */
+    /** @dataProvider getDataForTestCase */
     public function testCount($elements)
     {
         $collection = $this->createCollection('test.collection', $elements);
@@ -328,7 +307,7 @@ trait DataProviderTrait
         $this->assertSame(count($elements), $collection->count());
     }
 
-    /** @dataProvider testAcceptableDataProvider */
+    /** @dataProvider getDataForTestCase */
     public function testIterator($elements)
     {
         $collection = $this->createCollection('test.collection', $elements);
@@ -342,7 +321,7 @@ trait DataProviderTrait
         $this->assertEquals(count($elements), $iterations, 'Number of iterations not match');
     }
 
-    /** @dataProvider testAcceptableDataProvider */
+    /** @dataProvider getDataForTestCase */
     public function testEmpty($elements)
     {
         $collection = $this->createCollection('test.collection');
@@ -354,7 +333,7 @@ trait DataProviderTrait
         $this->assertCount(count($elements), $collection);
     }
 
-    /** @dataProvider testAcceptableDataProvider */
+    /** @dataProvider getDataForTestCase */
     public function testRemove($elements)
     {
         // actual test follows:
@@ -367,7 +346,7 @@ trait DataProviderTrait
         $this->assertTrue($collection->isEmpty());
     }
 
-    /** @dataProvider testAcceptableDataProvider */
+    /** @dataProvider getDataForTestCase */
     public function testRemoveElement($elements)
     {
         $collection = $this->createCollection('test.collection', $elements);
@@ -380,7 +359,7 @@ trait DataProviderTrait
         $this->assertTrue($collection->isEmpty());
     }
 
-    /** @dataProvider testAcceptableDataProvider */
+    /** @dataProvider getDataForTestCase */
     public function testContainsKey($elements)
     {
         $collection = $this->createCollection('test.collection', $elements);
@@ -391,7 +370,7 @@ trait DataProviderTrait
         }
     }
 
-    /** @dataProvider testAcceptableDataProvider */
+    /** @dataProvider getDataForTestCase */
     public function testContains($elements)
     {
         $collection = $this->createCollection('test.collection', $elements);
@@ -403,7 +382,7 @@ trait DataProviderTrait
         }
     }
 
-    /** @dataProvider testAcceptableDataProvider */
+    /** @dataProvider getDataForTestCase */
     public function testExists($elements)
     {
         // actual test follows:
@@ -415,7 +394,7 @@ trait DataProviderTrait
         }
     }
 
-    /** @dataProvider testAcceptableDataProvider */
+    /** @dataProvider getDataForTestCase */
     public function testIndexOf($elements)
     {
         $collection = $this->createCollection('test.collection', $elements);
@@ -426,7 +405,7 @@ trait DataProviderTrait
         }
     }
 
-    /** @dataProvider testAcceptableDataProvider */
+    /** @dataProvider getDataForTestCase */
     public function testGet($elements)
     {
         $collection = $this->createCollection('test.collection', $elements);
@@ -437,14 +416,14 @@ trait DataProviderTrait
         }
     }
 
-    /** @dataProvider testAcceptableDataProvider */
+    /** @dataProvider getDataForTestCase */
     public function testToString($elements)
     {
         $collection = $this->createCollection('test.collection', $elements);
         $this->assertTrue(is_string((string) $collection));
     }
 
-    /** @dataProvider testAcceptableDataProvider */
+    /** @dataProvider getDataForTestCase */
     public function testIssetAndUnset($elements)
     {
         $collection = $this->createCollection('test.collection', $elements);
@@ -456,7 +435,7 @@ trait DataProviderTrait
         }
     }
 
-    /** @dataProvider testAcceptableDataProvider */
+    /** @dataProvider getDataForTestCase */
     public function testClear($elements)
     {
         $collection = $this->createCollection('test.collection', $elements);
@@ -465,7 +444,7 @@ trait DataProviderTrait
         $this->assertEquals([], $collection->toArray());
     }
 
-    /** @dataProvider testAcceptableDataProvider */
+    /** @dataProvider getDataForTestCase */
     public function testSlice($elements)
     {
         $collection = $this->createCollection('test.collection', $elements);
@@ -474,7 +453,7 @@ trait DataProviderTrait
         $this->assertEquals($expectedValue, array_shift($value));
     }
 
-    /** @dataProvider testAcceptableDataProvider */
+    /** @dataProvider getDataForTestCase */
     public function testPartition($elements)
     {
         $collection = $this->createCollection('test.collection', $elements);
@@ -496,32 +475,30 @@ trait DataProviderTrait
         $this->assertEquals($expectedFailed, $failed->toArray());
     }
 
-    // /**
-    // * @depends testGraphDataProvider
-    // * @SuppressWarnings(PHPMD.StaticAccess)
-    // */
-    // public function testMatchingWithSortingPreservesKeys($elements)
-    // {
-    //     $collection = $this->createCollection('test.collection', $elements);
-    //     $elements = $this->hydrateElementKeys($elements);
-    //
-    //     $sortMap = [];
-    //     foreach ($collection as $key => $value) {
-    //         $sortOrder = strval(Uuid::uuid4());
-    //         $value->setOtherValue($sortOrder);
-    //         $sortMap[$key] = $sortOrder;
-    //     }
-    //     $sortSuccessful = asort($sortMap);
-    //     if (!$sortSuccessful) {
-    //         throw new \JBJ\Workflow\Exception\FixMeException('sort failed');
-    //     }
-    //     $matched = $collection
-    //         ->matching(new Criteria(null, ['otherValue' => Criteria::ASC]))
-    //         ->toArray();
-    //     $actual = [];
-    //     foreach ($matched as $key => $value) {
-    //         $actual[$key] = $value->getOtherValue();
-    //     }
-    //     $this->assertEquals($sortMap, $actual, $datasetIndex);
-    // }
+    /**
+    * @dataProvider getNodeCompatibleData
+    */
+    public function testMatchingWithSortingPreservesKeys($elements)
+    {
+        $collection = $this->createCollection('test.collection', $elements);
+        $elements = $this->hydrateElementKeys($elements);
+        $sortMap = [];
+        foreach ($collection as $key => $value) {
+            $sortOrder = strval(Uuid::uuid4());
+            $value->setOtherValue($sortOrder);
+            $sortMap[$key] = $sortOrder;
+        }
+        $sortSuccessful = asort($sortMap);
+        if (!$sortSuccessful) {
+            throw new \JBJ\Workflow\Exception\FixMeException('sort failed');
+        }
+        $matched = $collection
+            ->matching(new Criteria(null, ['otherValue' => Criteria::ASC]))
+            ->toArray();
+        $actual = [];
+        foreach ($matched as $key => $value) {
+            $actual[$key] = $value->getOtherValue();
+        }
+        $this->assertEquals($sortMap, $actual);
+    }
 }

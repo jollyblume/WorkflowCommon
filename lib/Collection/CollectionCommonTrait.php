@@ -300,9 +300,8 @@ trait CollectionCommonTrait
      */
     public function __toString()
     {
-        if (method_exists($this, 'getName')) {
-            return $this->getName();
-        }
+        // if (me
+        //todo,,,
         return strval($this->getChildren());
     }
 }
