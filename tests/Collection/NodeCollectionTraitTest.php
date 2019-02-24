@@ -32,6 +32,12 @@ class NodeCollectionTraitTest extends TestCase
         return $collection;
     }
 
+    public function testIsLeafNodeFalse()
+    {
+        $collection = $this->createCollection('testCreateAcceptableElement');
+        $this->assertFalse($collection->isLeafNode());
+    }
+
     public function testCreateAcceptableElement()
     {
         $collection = $this->createCollection('testCreateAcceptableElement');

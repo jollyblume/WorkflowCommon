@@ -9,6 +9,7 @@ namespace JBJ\Workflow\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
 use JBJ\Workflow\Traits\ElementNameTrait;
 use JBJ\Workflow\Traits\ElementParentTrait;
+use JBJ\Workflow\Traits\VisiteeTrait;
 use JBJ\Workflow\Exception\FixMeException;
 
 /**
@@ -16,7 +17,7 @@ use JBJ\Workflow\Exception\FixMeException;
  */
 trait NodeCollectionTrait
 {
-    use CollectionCommonTrait, ElementNameTrait, ElementParentTrait;
+    use CollectionCommonTrait, ElementNameTrait, ElementParentTrait, VisiteeTrait;
 
     public function __clone()
     {
@@ -35,6 +36,11 @@ trait NodeCollectionTrait
             }
             $children[$key]->setParent($this);
         }
+    }
+
+    public function isLeafNode()
+    {
+        return false;
     }
 
     protected function assertValidElement($element)
