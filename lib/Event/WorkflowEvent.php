@@ -2,8 +2,8 @@
 
 namespace JBJ\Workflow\Event;
 
-use Symfony\Component\EventDispatcher\Event as BaseEvent;
+use Symfony\Component\EventDispatcher\Event;
 
-class WorkflowEvent extends BaseEvent
+class WorkflowEvent extends Event
 {
 }
