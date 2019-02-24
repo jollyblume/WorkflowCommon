@@ -10,7 +10,7 @@ use JBJ\Workflow\Collection\LeafCollectionTrait;
 use JBJ\Workflow\Collection\NodeCollectionTrait;
 use PHPUnit\Framework\TestCase;
 
-class NodeCollectionTraitTest extends TestCase
+class ClonedCollectionTraitTest extends TestCase
 {
     use DataProviderTrait;
 
@@ -21,15 +21,16 @@ class NodeCollectionTraitTest extends TestCase
 
     protected function createCollection(string $name, array $elements = [])
     {
-        $collection = new class($name, $elements) implements NodeCollectionInterface {
-            use NodeCollectionTrait;
-            public function __construct(string $name, array $elements = [])
+        $name;
+        $collection = new class($elements) implements ArrayCollectionInterface {
+            use CollectionTrait;
+            public function __construct(array $elements = [])
             {
-                $this->setName($name);
                 $this->saveElements($elements);
             }
         };
-        return $collection;
+        $clone = clone $collection;
+        return $clone;
     }
 
     public function testCreateAcceptableElement()
@@ -40,9 +41,9 @@ class NodeCollectionTraitTest extends TestCase
         $this->assertTrue($collection->contains($element));
     }
 
-    public function testIsCollectionFalse()
+    public function testIsCollectionTrue()
     {
-        $this->assertFalse($this->isCollection());
+        $this->assertTrue($this->isCollection());
     }
 
     public function testIsLeafCollectionFalse()
@@ -50,22 +51,22 @@ class NodeCollectionTraitTest extends TestCase
         $this->assertFalse($this->isLeafCollection());
     }
 
-    public function testIsNodeCollectionTrue()
+    public function testIsNodeCollectionFalse()
     {
-        $this->assertTrue($this->isNodeCollection());
+        $this->assertFalse($this->isNodeCollection());
     }
 
     public function testGetDataForTestCase()
     {
         $data = $this->getDataForTestCase()[0];
-        $expectedData = $this->getNodeCompatibleData()[0];
+        $expectedData = array_merge($this->getNodeCompatibleData()[0], $this->getDoctrineTestData()[0]);
         $this->assertEquals($expectedData, $data);
     }
 
     public function testHydrateElementKeys()
     {
         $collection = $this->createCollection('testHydrateElementKeys');
-        $data = $this->getDataForTestCase()[0];
+        $data = $this->getDataForTestCase();
         foreach ($data as $dataIndex => $dataSet) {
             $collection->clear();
             foreach ($dataSet as $key => $value) {

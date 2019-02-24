@@ -21,8 +21,12 @@ trait NodeCollectionTrait
     public function __clone()
     {
         $this->setParent(null);
+        $children = $this->children;
+        if ($children instanceof ArrayCollection) {
+            $children = $children->toArray();
+            $this->children = $children;
+        }
         $children = $this->getChildren();
-        $children = new ArrayCollection($children->toArray());
         foreach ($children as $key => &$value) {
             $children[$key] = clone $value;
             if (!method_exists($value, 'setParent')) {

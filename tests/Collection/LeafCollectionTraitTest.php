@@ -22,10 +22,11 @@ class LeafCollectionTraitTest extends TestCase
     protected function createCollection(string $name, array $elements = [])
     {
         $name;
-        $collection = new class($elements) implements NodeCollectionInterface {
+        $collection = new class($name, $elements) implements NodeCollectionInterface {
             use LeafCollectionTrait;
-            public function __construct(array $elements = [])
+            public function __construct(string $name, array $elements = [])
             {
+                $this->setName($name);
                 $this->saveElements($elements);
             }
         };
