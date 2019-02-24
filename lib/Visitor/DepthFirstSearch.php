@@ -22,7 +22,7 @@ class DepthFirstSearch implements NodeVisitorInterface
         $this->visited[$currentPath]++;
     }
 
-    public function innerTraverse(NodeCollectionInterface $node, NodeVisitorInterface $visitor, string $currentPath)
+    protected function innerTraverse(NodeCollectionInterface $node, NodeVisitorInterface $visitor, string $currentPath)
     {
         $this->visitor = $visitor;
         $this->visited[$currentPath] = 0;
