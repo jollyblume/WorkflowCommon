@@ -31,7 +31,7 @@ class DepthFirstSearch implements NodeVisitorInterface
         if (!$node->isLeafNode()) {
             $currentPath = rtrim($currentPath, '/');
             foreach ($node as $child) {
-                $childPath = sprintf('/%s/%s', $currentPath, $child->getName());
+                $childPath = sprintf('%s/%s', $currentPath, $child->getName());
                 $paths = $this->traverse($child, $visitor, $childPath);
                 $this->visited = array_merge($this->visited, $paths);
             }
