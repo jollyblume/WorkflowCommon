@@ -16,16 +16,17 @@ class DepthFirstSearch implements NodeVisitorInterface
         $currentPath = $this->currentPath;
         $visited = boolval($this->visited[$currentPath]);
         if (!$visited) {
-            $this->visitor->visit($node);
+            $visitor = $this->visitor;
+            $visitor->visit($node);
         }
         $this->visited[$currentPath]++;
     }
 
-    public function traverse(NodeCollectionInterface $node, NodeVisitorInterface $visitor, string $currentPath = '/')
+    public function innerTraverse(NodeCollectionInterface $node, NodeVisitorInterface $visitor, string $currentPath)
     {
         $this->visitor = $visitor;
         $this->visited[$currentPath] = 0;
-        $this->$currentPath = $currentPath;
+        $this->currentPath = $currentPath;
         $node->accept($this);
         if (!$node->isLeafNode()) {
             $currentPath = rtrim($currentPath, '/');
@@ -36,5 +37,10 @@ class DepthFirstSearch implements NodeVisitorInterface
             }
         }
         return $this->visited;
+    }
+
+    public function traverse(NodeCollectionInterface $node, NodeVisitorInterface $visitor)
+    {
+        return $this->innerTraverse($node, $visitor, '/');
     }
 }
