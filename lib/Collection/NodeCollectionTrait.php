@@ -70,6 +70,9 @@ trait NodeCollectionTrait
             throw new FixMeException(sprintf('Invalid key "%s", expecting "%s".', $key, $newKey));
         }
         $children = $this->getChildren();
+        if (null !== $element->getParent()) {
+            throw new \JBJ\Workflow\Exception\FixMeException(sprintf('Unable to set "%s" while attached to "%s"', $element->getName(), get_class($element->getParent())));
+        }
         $children[$newKey] = $element;
         $element->setParent($this);
     }
