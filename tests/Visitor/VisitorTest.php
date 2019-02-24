@@ -6,6 +6,7 @@ use PHPUnit\Framework\TestCase;
 use JBJ\Workflow\Collection\Reference\NodeCollection;
 use JBJ\Workflow\Collection\Reference\LeafCollection;
 use JBJ\Workflow\Visitor\NodeVisitorInterface;
+use JBJ\Workflow\Visitor\DepthFirstSearch;
 use JBJ\Workflow\NodeInterface;
 use JBJ\Workflow\NodeCollectionInterface;
 
@@ -22,7 +23,27 @@ class VisitorTest extends TestCase
         return $graph;
     }
 
-    protected function getVisitor()
+    protected function getGraphPaths(NodeCollectionInterface $graph)
+    {
+        $paths = $this->innerGraphPaths($graph, '/');
+        return $paths;
+    }
+
+    private function innerGraphPaths(NodeCollectionInterface $node, string $currentPath)
+    {
+        $paths = [$currentPath => 1];
+        if (!$node->isLeafNode()) {
+            $currentPath = rtrim($currentPath, '/');
+            foreach ($node as $child) {
+                $childPath = sprintf('%s/%s', $currentPath, $child->getName());
+                $newPaths = $this->innerGraphPaths($child, $childPath);
+                $paths = array_merge($paths, $newPaths);
+            }
+        }
+        return $paths;
+    }
+
+    protected function getLeafDetectorVisitor()
     {
         $visitor = new class() implements NodeVisitorInterface {
             private $leafNodes = [];
@@ -64,7 +85,7 @@ class VisitorTest extends TestCase
     public function testVisitWorkflow()
     {
         $graph = $this->getGraph();
-        $visitor = $this->getVisitor();
+        $visitor = $this->getLeafDetectorVisitor();
         $this->assertEquals([], $visitor->getLeafNodes());
         $this->assertTrue(method_exists($graph, 'accept'));
         $graph->accept($visitor); // test just a node
@@ -78,5 +99,26 @@ class VisitorTest extends TestCase
             'leaf-1' => 4,
         ];
         $this->assertEquals($expected, $visitor->getLeafNodes());
+    }
+
+    protected function getNullVisitor()
+    {
+        $visitor = new class() implements NodeVisitorInterface {
+            public function visit(NodeCollectionInterface $node)
+            {
+                $node;
+            }
+        };
+        return $visitor;
+    }
+
+    public function testDepthFirstSearch()
+    {
+        $dfs = new DepthFirstSearch();
+        $graph = $this->getGraph();
+        $visitor = $this->getNullVisitor();
+        $paths = $dfs->traverse($graph, $visitor);
+        $expected = $this->getGraphPaths($graph);
+        $this->assertEquals($this->getGraphPaths($graph), $paths);
     }
 }
