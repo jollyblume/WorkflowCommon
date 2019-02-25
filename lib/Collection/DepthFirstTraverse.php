@@ -7,25 +7,26 @@ use JBJ\Workflow\NodeCollectionInterface;
 
 class DepthFirstTraverse
 {
-    protected function innerTraverse(NodeCollectionInterface $node, ?NodeVisitorInterface $visitor, string $currentPath)
+    protected function innerTraverse(PathCollection $paths, string currentPath, NodeVisitorInterface $visitor = null)
     {
-        $paths = [$currentPath => 1];
         if ($visitor) {
+            $node = $paths[$currentPath];
             $node->accept($visitor);
         }
         if (!$node->isLeafNode()) {
             $currentPath = rtrim($currentPath, '/');
             foreach ($node as $child) {
                 $childPath = sprintf('%s/%s', $currentPath, $child->getName());
-                $innerPaths = $this->traverse($child, $visitor, $childPath);
-                $paths = array_merge($paths, $innerPaths);
+                $paths[$childPath] = $child;
+                $this->innerTraverse($paths, $childPath, $visitor);
             }
         }
-        return $paths;
     }
 
-    public function traverse(NodeCollectionInterface $node, NodeVisitorInterface $visitor, string $currentPath = '/')
+    public function traverse(NodeCollectionInterface $node, NodeVisitorInterface $visitor = null)
     {
-        return $this->innerTraverse($node, $visitor, $paths);
+        $paths = new PathCollection($node);
+        $this->innerTraverse($paths, '/', $visitor);
+        return $paths;
     }
 }
