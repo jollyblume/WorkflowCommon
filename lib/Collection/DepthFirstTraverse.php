@@ -1,16 +1,18 @@
 <?php
 
-namespace JBJ\Workflow\Visitor;
+namespace JBJ\Workflow\Collection;
 
 use JBJ\Workflow\Visitor\NodeVisitorInterface;
 use JBJ\Workflow\NodeCollectionInterface;
 
-class DepthFirstSearch
+class DepthFirstTraverse
 {
-    protected function innerTraverse(NodeCollectionInterface $node, NodeVisitorInterface $visitor, string $currentPath)
+    protected function innerTraverse(NodeCollectionInterface $node, ?NodeVisitorInterface $visitor, string $currentPath)
     {
         $paths = [$currentPath => 1];
-        $node->accept($visitor);
+        if ($visitor) {
+            $node->accept($visitor);
+        }
         if (!$node->isLeafNode()) {
             $currentPath = rtrim($currentPath, '/');
             foreach ($node as $child) {
@@ -22,8 +24,8 @@ class DepthFirstSearch
         return $paths;
     }
 
-    public function traverse(NodeCollectionInterface $node, NodeVisitorInterface $visitor)
+    public function traverse(NodeCollectionInterface $node, NodeVisitorInterface $visitor, string $currentPath = '/')
     {
-        return $this->innerTraverse($node, $visitor, '/');
+        return $this->innerTraverse($node, $visitor, $paths);
     }
 }
