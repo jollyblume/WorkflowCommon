@@ -10,10 +10,9 @@ use JBJ\Workflow\Collection\LeafCollectionTrait;
  *
  * PathCollection maps a path to a node.
  *
- * The root path is always '/'. The root path will point to the first node added
- * and paths for each node in the graph will be relative to this root path/node.
+ * The root path is always '/'and points to the node provided to the constructor.
  *
- * A parent path is the root node's path in some larger graph.
+ * Paths for each node in the graph are relative to this root path/node.
  */
 class PathCollection implements NodeCollectionInterface
 {
@@ -25,9 +24,9 @@ class PathCollection implements NodeCollectionInterface
      * Sets the collection name.
      * Saves the children for later initialization
      */
-    public function __construct(string $parentPath)
+    public function __construct(NodeCollectionInterface $node)
     {
-        $this->setName($parentPath);
-        $this->saveElements([]);
+        $this->setName($node->getName());
+        $this->saveElements(['/' => $node]);
     }
 }
