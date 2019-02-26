@@ -1,6 +1,6 @@
 <?php
 
-namespace JBJ\Workflow\Tests\Visitor;
+namespace JBJ\Workflow\Tests\Traverser;
 
 use JBJ\Workflow\Collection\Reference\NodeCollection;
 use JBJ\Workflow\Collection\Reference\LeafCollection;
@@ -80,7 +80,7 @@ class TraverserBaseTest extends TestCase
     {
         $visitor = new class() implements NodeVisitorInterface {
             private $leafNodes = [];
-            public function visit(NodeCollectionInterface $node, string $nodePath)
+            public function visit(NodeCollectionInterface $node, string $nodePath): bool
             {
                 if ($node->isLeafNode()) {
                     $leafNodes = $this->leafNodes;
@@ -100,19 +100,6 @@ class TraverserBaseTest extends TestCase
             {
                 $leafNodes = $this->leafNodes;
                 return $leafNodes;
-            }
-        };
-        return $visitor;
-    }
-
-    protected function getNullVisitor()
-    {
-        $visitor = new class() implements NodeVisitorInterface {
-            public function visit(NodeCollectionInterface $node, string $nodePath)
-            {
-                $node;
-                $nodePath;
-                return true;
             }
         };
         return $visitor;
