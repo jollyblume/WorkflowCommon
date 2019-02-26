@@ -28,6 +28,20 @@ class TraverserTest extends TraverserBaseTest
         $this->assertCount(10, $visitor->getLeafNodes());
     }
 
+    public function testDepthFirstTraverserIgnoresFalse()
+    {
+        $graph = $this->buildGraph('dfs-test');
+        $visitor = $this->getIgnoreLeafNodesVisitor();
+        $paths = $this->getPaths($graph, $visitor);
+        $this->assertCount(10, $paths);
+        $this->assertCount(10, $visitor->getIgnoredNodes());
+        $allPaths = $this->getPaths($graph);
+        foreach ($visitor->getIgnoredNodes() as $nodePath => $node) {
+            $paths[$nodePath] = $node;
+        }
+        $this->assertEquals($allPaths, $paths);
+    }
+
     public function testPathTraverser()
     {
         $graph = $this->buildGraph('dfs-test');

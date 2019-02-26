@@ -18,7 +18,9 @@ class DepthFirstTraverser
         if ($visitor) {
             $visited = $visitor->visit($node, $nodePath);
         }
-        $this->paths[$nodePath] = $visited ? $node : false;
+        if ($visited) {
+            $this->paths[$nodePath] = $node;
+        }
         if ($visited && !$node->isLeafNode()) {
             $currentPath = rtrim($nodePath, '/');
             foreach ($node as $child) {

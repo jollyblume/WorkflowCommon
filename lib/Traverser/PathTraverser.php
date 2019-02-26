@@ -11,11 +11,10 @@ class PathTraverser
     {
         $visitedPaths = new PathCollection($pathsName);
         foreach ($paths as $nodePath => $node) {
-            if (false === $node) {
-                continue;
-            }
             $visited = $visitor->visit($node, $nodePath);
-            $visitedPaths[$nodePath] = $visited ? $node : false;
+            if ($visited) {
+                $visitedPaths[$nodePath] = $node;
+            }
         }
         return $visitedPaths;
     }

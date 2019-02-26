@@ -104,4 +104,29 @@ class TraverserBaseTest extends TestCase
         };
         return $visitor;
     }
+
+    protected function getIgnoreLeafNodesVisitor()
+    {
+        $visitor = new class() implements NodeVisitorInterface {
+            private $ignoredNodes = [];
+            public function visit(NodeCollectionInterface $node, string $nodePath): bool
+            {
+                if ($node->isLeafNode()) {
+                    $this->ignoredNodes[$nodePath] = $node;
+                    return false;
+                }
+                return true;
+            }
+            public function clear()
+            {
+                $this->ignoredNodes = [];
+            }
+            public function getIgnoredNodes()
+            {
+                $ignoredNodes = $this->ignoredNodes;
+                return $ignoredNodes;
+            }
+        };
+        return $visitor;
+    }
 }
