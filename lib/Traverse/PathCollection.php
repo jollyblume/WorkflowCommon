@@ -1,6 +1,6 @@
 <?php
 
-namespace JBJ\Workflow\Collection;
+namespace JBJ\Workflow\Traverse;
 
 use JBJ\Workflow\NodeCollectionInterface;
 use JBJ\Workflow\Collection\LeafCollectionTrait;
@@ -24,9 +24,9 @@ class PathCollection implements NodeCollectionInterface
      * Sets the collection name.
      * Saves the children for later initialization
      */
-    public function __construct(NodeCollectionInterface $node)
+    public function __construct(string $name)
     {
-        $this->setName($node->getName());
-        $this->saveElements(['/' => $node]);
+        $this->setName($name);
+        $this->saveElements([]);
     }
 }
