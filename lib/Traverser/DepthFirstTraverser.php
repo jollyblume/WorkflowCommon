@@ -16,7 +16,7 @@ class DepthFirstTraverser
         $visitor = $this->visitor;
         $visited = null === $visitor;
         if ($visitor) {
-            $visited = $node->accept($visitor);
+            $visited = $visitor->visit($node, $nodePath);
         }
         $this->paths[$nodePath] = $visited ? $node : false;
         if ($visited && !$node->isLeafNode()) {

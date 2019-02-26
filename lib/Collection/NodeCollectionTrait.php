@@ -9,7 +9,6 @@ namespace JBJ\Workflow\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
 use JBJ\Workflow\Traits\ElementNameTrait;
 use JBJ\Workflow\Traits\ElementParentTrait;
-use JBJ\Workflow\Traits\VisiteeTrait;
 use JBJ\Workflow\Exception\FixMeException;
 
 /**
@@ -17,7 +16,7 @@ use JBJ\Workflow\Exception\FixMeException;
  */
 trait NodeCollectionTrait
 {
-    use CollectionCommonTrait, ElementNameTrait, ElementParentTrait, VisiteeTrait;
+    use CollectionCommonTrait, ElementNameTrait, ElementParentTrait;
 
     public function __clone()
     {

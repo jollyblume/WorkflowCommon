@@ -4,7 +4,6 @@ namespace JBJ\Workflow\Collection;
 
 use JBJ\Workflow\Traits\ElementNameTrait;
 use JBJ\Workflow\Traits\ElementParentTrait;
-use JBJ\Workflow\Traits\VisiteeTrait;
 
 /**
  * LeafCollectionTrait
@@ -13,7 +12,7 @@ use JBJ\Workflow\Traits\VisiteeTrait;
  */
 trait LeafCollectionTrait
 {
-    use CollectionTrait, ElementNameTrait, ElementParentTrait, VisiteeTrait;
+    use CollectionTrait, ElementNameTrait, ElementParentTrait;
 
     public function isLeafNode()
     {

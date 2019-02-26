@@ -10,12 +10,12 @@ class PathTraverser
     public function traverse(PathCollection $paths, NodeVisitorInterface $visitor, string $pathsName = 'visitedNodes')
     {
         $visitedPaths = new PathCollection($pathsName);
-        foreach ($paths as $path => $node) {
+        foreach ($paths as $nodePath => $node) {
             if (false === $node) {
                 continue;
             }
-            $visited = $node->accept($visitor);
-            $visitedPaths[$path] = $visited ? $node : false;
+            $visited = $visitor->visit($node, $nodePath)
+            $visitedPaths[$nodePath] = $visited ? $node : false;
         }
         return $visitedPaths;
 }

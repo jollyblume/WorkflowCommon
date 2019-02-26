@@ -10,12 +10,12 @@ class AnswerTraverser
     public function traverse(PathCollection $paths, Closure $nodeFunction, string $pathsName = 'answers')
     {
         $answers = new PathCollection($pathsName);
-        foreach ($paths as $path => $node) {
+        foreach ($paths as $nodePath => $node) {
             if (false === $node) {
                 continue;
             }
-            $answer = $nodeFunction($node, $path);
-            $answers[$path] = $answer;
+            $answer = $nodeFunction($node, $nodePath);
+            $answers[$nodePath] = $answer;
         }
         return $answers;
 }

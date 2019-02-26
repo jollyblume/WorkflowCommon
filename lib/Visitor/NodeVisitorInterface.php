@@ -6,5 +6,5 @@ use JBJ\Workflow\NodeCollectionInterface;
 
 interface NodeVisitorInterface
 {
-    public function visit(NodeCollectionInterface $node): bool;
+    public function visit(NodeCollectionInterface $node, string $nodePath): bool;
 }
