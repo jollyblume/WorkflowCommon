@@ -10,5 +10,5 @@ interface NodeInterface extends ArrayCollectionInterface
     public function getParent();
     public function setParent($parent);
     public function isLeafNode();
-    public function accept(NodeVisitorInterface $visitor);
+    public function accept(NodeVisitorInterface $visitor): bool;
 }

@@ -6,8 +6,8 @@ use JBJ\Workflow\Visitor\NodeVisitorInterface;
 
 trait VisiteeTrait
 {
-    public function accept(NodeVisitorInterface $visitor)
+    public function accept(NodeVisitorInterface $visitor): bool
     {
-        $visitor->visit($this);
+        return $visitor->visit($this);
     }
 }
