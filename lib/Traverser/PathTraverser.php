@@ -14,8 +14,9 @@ class PathTraverser
             if (false === $node) {
                 continue;
             }
-            $visited = $visitor->visit($node, $nodePath)
+            $visited = $visitor->visit($node, $nodePath);
             $visitedPaths[$nodePath] = $visited ? $node : false;
         }
         return $visitedPaths;
+    }
 }

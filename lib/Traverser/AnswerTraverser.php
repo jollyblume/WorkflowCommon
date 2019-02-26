@@ -15,7 +15,10 @@ class AnswerTraverser
                 continue;
             }
             $answer = $nodeFunction($node, $nodePath);
-            $answers[$nodePath] = $answer;
+            if ($answer) {
+                $answers[$nodePath] = $answer;
+            }
         }
         return $answers;
+    }
 }
