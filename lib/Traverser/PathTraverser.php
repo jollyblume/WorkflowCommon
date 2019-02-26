@@ -1,10 +1,11 @@
 <?php
 
-namespace JBJ\Workflow\Traverse;
+namespace JBJ\Workflow\Traverser;
 
 use JBJ\Workflow\Visitor\NodeVisitorInterface;
+use JBJ\Workflow\Collection\PathCollection;
 
-class PathTraverse
+class PathTraverser
 {
     public function traverse(PathCollection $paths, NodeVisitorInterface $visitor, string $pathsName = 'visitedNodes')
     {

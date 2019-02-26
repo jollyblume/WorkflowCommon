@@ -1,11 +1,12 @@
 <?php
 
-namespace JBJ\Workflow\Traverse;
+namespace JBJ\Workflow\Traverser;
 
 use JBJ\Workflow\Visitor\NodeVisitorInterface;
 use JBJ\Workflow\NodeCollectionInterface;
+use JBJ\Workflow\Collection\PathCollection;
 
-class DepthFirstTraverse
+class DepthFirstTraverser
 {
     private $visitor;
     private $paths;

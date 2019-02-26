@@ -1,11 +1,11 @@
 <?php
 
-namespace JBJ\Workflow\Traverse;
+namespace JBJ\Workflow\Traverser;
 
 use Closure;
-use JBJ\Workflow\Visitor\NodeVisitorInterface;
+use JBJ\Workflow\Collection\PathCollection;
 
-class ClosureTraverse
+class AnswerTraverser
 {
     public function traverse(PathCollection $paths, Closure $nodeFunction, string $pathsName = 'answers')
     {

@@ -1,6 +1,6 @@
 <?php
 
-namespace JBJ\Workflow\Traverse;
+namespace JBJ\Workflow\Collection;
 
 use JBJ\Workflow\NodeCollectionInterface;
 use JBJ\Workflow\Collection\LeafCollectionTrait;
