@@ -22,19 +22,13 @@ trait NodeCollectionTrait
     {
         $this->setParent(null);
         $children = $this->children;
-        if ($children instanceof ArrayCollection) {
-            $children = $children->toArray();
-            $this->children = $children;
+        $newChildren = [];
+        foreach ($children as $key => $value) {
+            $newValue = clone $value;
+            $newValue->getParent(null);
+            $newChildren[$key] = clone $value;
         }
-        $children = $this->getChildren();
-        foreach ($children as $key => &$value) {
-            $children[$key] = clone $value;
-            if (!method_exists($value, 'setParent')) {
-                // Can't be sure $value is no longer connected to previous parent
-                throw new \JBJ\Workflow\Exception\FixMeException(sprintf('PANIC: unable to setParent() for "%s"', $key));
-            }
-            $children[$key]->setParent($this);
-        }
+        $this->children = $newChildren;
     }
 
     public function isLeafNode()

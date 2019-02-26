@@ -11,9 +11,6 @@ class AnswerTraverser
     {
         $answers = new PathCollection($pathsName);
         foreach ($paths as $nodePath => $node) {
-            if (false === $node) {
-                continue;
-            }
             $answer = $nodeFunction($node, $nodePath);
             if ($answer) {
                 $answers[$nodePath] = $answer;
