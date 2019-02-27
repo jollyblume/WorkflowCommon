@@ -16,21 +16,28 @@ trait DataProviderTrait
     abstract protected function getTestClassname();
     abstract protected function createCollection(string $name, array $elements = []);
 
-    protected function getTraitNames($class)
+    protected function class_uses_deep($class, $autoload = true)
     {
-        $classname = is_object($class) ? get_class($class) : strval($class);
-        $rClass = new \ReflectionClass($classname);
-        $parents = [$rClass];
-        while ($parent = $rClass->getParentClass()) {
-            $parents[] = $parent;
-            $rClass = $parent;
+        $traits = [];
+
+        // Get traits of all parent classes
+        do {
+            $traits = array_merge(class_uses($class, $autoload), $traits);
+        } while ($class = get_parent_class($class));
+
+        // Get traits of all parent traits
+        $traitsToSearch = $traits;
+        while (!empty($traitsToSearch)) {
+            $newTraits = class_uses(array_pop($traitsToSearch), $autoload);
+            $traits = array_merge($newTraits, $traits);
+            $traitsToSearch = array_merge($newTraits, $traitsToSearch);
+        };
+
+        foreach ($traits as $trait => $same) {
+            $traits = array_merge(class_uses($trait, $autoload), $traits);
         }
-        $traitNames = [];
-        foreach ($parents as $rClass) {
-            $traitNames = array_merge($traitNames, $rClass->getTraitNames());
-        }
-        //todo do i care about traits used by traits? probably not
-        return $traitNames;
+
+        return array_unique($traits);
     }
 
     private $relevantTraitName;
@@ -39,18 +46,20 @@ trait DataProviderTrait
         $relevantName = $this->relevantTraitName;
         if (!$relevantName) {
             $relevantNamesFixture = [
-                CollectionTrait::class,
-                LeafCollectionTrait::class,
                 NodeCollectionTrait::class,
+                LeafCollectionTrait::class,
+                CollectionTrait::class,
             ];
             $classname = $this->getTestClassname();
-            $traitNames = $this->getTraitNames($classname);
-            $relevantNames = array_intersect($relevantNamesFixture, $traitNames);
-            if (count($relevantNames) === 0) {
+            $traitNames = $this->class_uses_deep($classname);
+            foreach ($relevantNamesFixture as $relevantName) {
+                if (array_key_exists($relevantName, $traitNames)) {
+                    break;
+                }
+            }
+            if (!$relevantName) {
                 throw new \Exception(sprintf('No relative names found in "%s"', join(',', $traitNames)));
             }
-            $relevantName = reset($relevantNames);
-            $this->relevantTraitName = $relevantName;
         }
         return $relevantName;
     }
