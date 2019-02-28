@@ -21,11 +21,7 @@
 
     <filter>
         <whitelist>
-            <directory>./</directory>
-            <exclude>
-                <directory>./tests</directory>
-                <directory>./vendor</directory>
-            </exclude>
+            <directory>./lib/</directory>
         </whitelist>
     </filter>
 </phpunit>
