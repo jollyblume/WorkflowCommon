@@ -3,7 +3,7 @@
 namespace JBJ\Workflow\Traits;
 
 use Ramsey\Uuid\Uuid;
-use Ramsey\Uuid\Validator\UuidValidator;
+use Ramsey\Uuid\Validator\Validator as UuidValidator;
 
 trait CreateIdTrait
 {
