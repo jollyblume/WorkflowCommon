@@ -15,7 +15,9 @@
         "graphp/algorithms": "^0.8.1",
         "graphp/graphviz": "^0.2.1",
         "moontoast/math": "^1.1",
-        "ramsey/uuid": "@dev"
+        "ramsey/uuid": "@dev",
+        "symfony/event-dispatcher": "^4.2",
+        "symfony/property-access": "^4.2"
     },
     "require-dev": {
         "psr/log": "^1.1",
