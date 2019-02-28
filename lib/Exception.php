@@ -1,6 +1,6 @@
 <?php
 
-namespace JBJ\Workflow\Graph;
+namespace JBJ\Workflow;
 
 interface Exception
 {

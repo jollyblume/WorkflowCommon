@@ -1,9 +1,9 @@
 <?php
 
-namespace JBJ\Workflow\Graph\Exception;
+namespace JBJ\Workflow\Exception;
 
-use JBJ\Workflow\Graph;
+use JBJ\Workflow;
 
-class DomainException extends \DomainException implements Graph\Exception
+class DomainException extends \DomainException implements Workflow\Exception
 {
 }

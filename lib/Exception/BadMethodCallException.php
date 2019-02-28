@@ -1,9 +1,9 @@
 <?php
 
-namespace JBJ\Workflow\Graph\Exception;
+namespace JBJ\Workflow\Exception;
 
-use JBJ\Workflow\Graph;
+use JBJ\Workflow;
 
-class BadMethodCallException extends \BadMethodCallException implements Graph\Exception
+class BadMethodCallException extends \BadMethodCallException implements Workflow\Exception
 {
 }

@@ -1,9 +1,9 @@
 <?php
 
-namespace JBJ\Workflow\Graph\Exception;
+namespace JBJ\Workflow\Exception;
 
-use JBJ\Workflow\Graph;
+use JBJ\Workflow;
 
-class InvalidArgumentException extends \InvalidArgumentException implements Graph\Exception
+class InvalidArgumentException extends \InvalidArgumentException implements Workflow\Exception
 {
 }

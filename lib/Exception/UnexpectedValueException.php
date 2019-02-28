@@ -1,9 +1,9 @@
 <?php
 
-namespace JBJ\Workflow\Graph\Exception;
+namespace JBJ\Workflow\Exception;
 
-use JBJ\Workflow\Graph;
+use JBJ\Workflow;
 
-class UnexpectedValueException extends \UnexpectedValueException implements Graph\Exception
+class UnexpectedValueException extends \UnexpectedValueException implements Workflow\Exception
 {
 }

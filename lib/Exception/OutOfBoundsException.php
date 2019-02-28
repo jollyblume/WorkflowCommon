@@ -1,9 +1,9 @@
 <?php
 
-namespace JBJ\Workflow\Graph\Exception;
+namespace JBJ\Workflow\Exception;
 
-use JBJ\Workflow\Graph;
+use JBJ\Workflow;
 
-class OutOfBoundsException extends \OutOfBoundsException implements Graph\Exception
+class OutOfBoundsException extends \OutOfBoundsException implements Workflow\Exception
 {
 }

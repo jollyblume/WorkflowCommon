@@ -1,9 +1,9 @@
 <?php
 
-namespace JBJ\Workflow\Graph\Exception;
+namespace JBJ\Workflow\Exception;
 
-use JBJ\Workflow\Graph;
+use JBJ\Workflow;
 
-class RangeException extends \RangeException implements Graph\Exception
+class RangeException extends \RangeException implements Workflow\Exception
 {
 }

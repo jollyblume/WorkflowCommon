@@ -1,11 +1,11 @@
 <?php
 
-namespace JBJ\Workflow\Graph\Exception;
+namespace JBJ\Workflow\Exception;
 
 use Fhaculty\Graph\Walk;
-use JBJ\Workflow\Graph;
+use JBJ\Workflow;
 
-class NegativeCycleException extends UnexpectedValueException implements Graph\Exception
+class NegativeCycleException extends UnexpectedValueException implements Workflow\Exception
 {
     /**
      * instance of the cycle

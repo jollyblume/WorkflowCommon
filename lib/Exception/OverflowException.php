@@ -1,9 +1,9 @@
 <?php
 
-namespace JBJ\Workflow\Graph\Exception;
+namespace JBJ\Workflow\Exception;
 
-use JBJ\Workflow\Graph;
+use JBJ\Workflow;
 
-class OverflowException extends \OverflowException implements Graph\Exception
+class OverflowException extends \OverflowException implements Workflow\Exception
 {
 }

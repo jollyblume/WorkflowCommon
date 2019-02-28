@@ -1,9 +1,9 @@
 <?php
 
-namespace JBJ\Workflow\Graph\Exception;
+namespace JBJ\Workflow\Exception;
 
-use JBJ\Workflow\Graph;
+use JBJ\Workflow;
 
-class LogicException extends \LogicException implements Graph\Exception
+class LogicException extends \LogicException implements Workflow\Exception
 {
 }
