@@ -18,7 +18,19 @@ class NameTraitTest extends TestCase
                 $this->setName($name);
             }
         };
-
         $this->assertEquals($uuid, $trait->getName());
+    }
+
+    public function testToString()
+    {
+        $trait = new class('test.name') {
+            use NameTrait;
+
+            public function __construct(string $name)
+            {
+                $this->setName($name);
+            }
+        };
+        $this->assertEquals('test.name', strval($trait));
     }
 }
