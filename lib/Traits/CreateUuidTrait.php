@@ -5,10 +5,10 @@ namespace JBJ\Workflow\Traits;
 use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\Validator\Validator as UuidValidator;
 
-trait CreateIdTrait
+trait CreateUuidTrait
 {
     /** @SuppressWarnings(PHPMD.StaticAccess) */
-    protected function createId(string $name = '')
+    protected function createUuid(string $name = '')
     {
         if (empty($name)) {
             return strval(Uuid::uuid4());

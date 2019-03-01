@@ -2,17 +2,17 @@
 
 namespace JBJ\Workflow\Tests\Traits;
 
-use JBJ\Workflow\Traits\CreateIdTrait;
+use JBJ\Workflow\Traits\CreateUuidTrait;
 use Ramsey\Uuid\Validator\Validator as UuidValidator;
 use PHPUnit\Framework\TestCase;
 
-class CreateIdTraitTest extends TestCase
+class CreateUuidTraitTest extends TestCase
 {
-    public function testCreateId()
+    public function testCreateUuid()
     {
         $trait = new class() {
-            use CreateIdTrait {
-                CreateId as public;
+            use CreateUuidTrait {
+                createUuid as public;
             }
 
             public function validate($uuid)
@@ -25,12 +25,12 @@ class CreateIdTraitTest extends TestCase
         $this->assertFalse($trait->validate('a.name'));
         $uuid = 'cd6ccde3-d11d-432b-8ffa-3596f214f7b1';
         $this->assertTrue($trait->validate($uuid));
-        $newId = $trait->CreateId();
+        $newId = $trait->CreateUuid();
         $this->assertTrue($trait->validate($newId));
-        $newId = $trait->CreateId('a.name');
+        $newId = $trait->CreateUuid('a.name');
         $this->assertTrue($trait->validate($newId));
-        $this->assertEquals($newId, $trait->CreateId('a.name'));
-        $newId = $trait->CreateId($uuid);
+        $this->assertEquals($newId, $trait->CreateUuid('a.name'));
+        $newId = $trait->CreateUuid($uuid);
         $this->assertEquals($uuid, $newId);
     }
 }
