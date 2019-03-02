@@ -1,6 +1,6 @@
 {
     "name": "jollyblume/workflow-common",
-    "description": "Utility classes and common code",
+    "description": "Utility classes and common workflow code",
     "type": "library",
     "license": "MIT",
     "authors": [
